@@ -25,6 +25,7 @@
 // Some may or may not require special error info
 enum hog_error {
   HOG_OK = 0,
+  HOG_ERR_UNTERMINATED_TOKEN,
   // errno is stored in err_detail
   HOG_ERRNO
 };
@@ -33,10 +34,10 @@ const char *hog_err_to_str(enum hog_error self);
 
 #define hog_err_msg(...) sprintf(hog_err_msg_ptr(), __VA_ARGS__);
 
-#define hog_errno()                                                           \
+#define hog_errno()                                                            \
   {                                                                            \
-    hog_err_set(HOG_ERRNO);                                                  \
-    hog_err_detail(&errno, sizeof(errno));                                    \
+    hog_err_set(HOG_ERRNO);                                                    \
+    hog_err_detail(&errno, sizeof(errno));                                     \
   }
 
 #define hog_err_detail(data, len) memcpy(hog_err_details_ptr(), data, len);
@@ -69,7 +70,7 @@ void *hog_err_details_ptr(void);
 size_t hog_err_details_len(void);
 
 // bail on error macro
-#define hog_ok_or(err, ret)                                                   \
+#define hog_ok_or(err, ret)                                                    \
   {                                                                            \
     if ((err)) {                                                               \
       return (ret);                                                            \
@@ -77,7 +78,7 @@ size_t hog_err_details_len(void);
   }
 
 // optional struct
-#define hog_some_or(optional, ret)                                            \
+#define hog_some_or(optional, ret)                                             \
   {                                                                            \
     if ((optional)) {                                                          \
       return (ret);                                                            \
