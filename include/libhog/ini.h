@@ -24,7 +24,12 @@ struct hog_ini_kv {
   size_t value_len;
 };
 
-enum hog_ini_type { HOG_INI_INVAL = 0, HOG_INI_SECTION, HOG_INI_KV };
+enum hog_ini_type {
+  HOG_INI_INVAL = 0,
+  HOG_INI_EMPTY,
+  HOG_INI_SECTION,
+  HOG_INI_KV
+};
 
 struct hog_ini {
   enum hog_ini_type type;
