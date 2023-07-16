@@ -28,6 +28,7 @@ enum hog_error {
   HOG_ERR_UNTERMINATED_TOKEN,
   HOG_ERR_INI_SECTION_INVAL,
   HOG_ERR_INI_BAD_KEY,
+  HOG_ERR_CMD_INVAL,
   // errno is stored in err_detail
   HOG_ERRNO
 };

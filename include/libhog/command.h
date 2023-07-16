@@ -4,21 +4,31 @@
 #include "libhog/types.h"
 #include <stddef.h>
 
-enum hog_commands { HOG_COMMAND_SKIP_BYTES };
+enum hog_cmds {
+  HOG_CMD_INVAL = 0,
+  HOG_CMD_BEGIN,
+  HOG_CMD_END,
 
-struct hog_command {
-  enum hog_commands type;
+  HOG_CMD_BEGIN_SCOPE,
+  HOG_CMD_END_SCOPE,
+
+  HOG_CMD_FMT_PRIMITIVE,
+
+  HOG_CMD_MOVE_BYTES,
+
+};
+
+struct hog_cmd {
+  enum hog_cmds type;
 
   // data the command may require
   union {
-    size_t skip_bytes;
-    struct {
-      const char *fmt_str;
-    };
+    int move_bytes;
   };
 };
 
-// this will get a default formatter for each data type
-const char *hog_types_default_fmt(enum hog_types type);
+struct hog_cmd hog_cmd_init(void);
+
+struct hog_cmd hog_cmd_move_init(int move_bytes);
 
 #endif
