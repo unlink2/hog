@@ -24,7 +24,7 @@ struct hog_ini_kv {
   size_t value_len;
 };
 
-enum hog_ini_type { HOG_INI_SECTION, HOG_INI_KV };
+enum hog_ini_type { HOG_INI_INVAL = 0, HOG_INI_SECTION, HOG_INI_KV };
 
 struct hog_ini {
   enum hog_ini_type type;
@@ -36,6 +36,8 @@ struct hog_ini {
   // returned data
   const char *next;
 };
+
+struct hog_ini hog_ini_init(void);
 
 // get the next value from a stream of data
 struct hog_ini hog_ini_next(const char *input);

@@ -26,6 +26,7 @@
 enum hog_error {
   HOG_OK = 0,
   HOG_ERR_UNTERMINATED_TOKEN,
+  HOG_ERR_INI_SECTION_INVAL,
   // errno is stored in err_detail
   HOG_ERRNO
 };
