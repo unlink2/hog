@@ -13,17 +13,27 @@ enum hog_cmds {
   HOG_CMD_END_SCOPE,
 
   HOG_CMD_FMT_PRIMITIVE,
+  HOG_CMD_FMT_LITERAL,
 
   HOG_CMD_MOVE_BYTES,
-
 };
 
+// a command is a single instruction
+// that tells the apply formatter what to output
+// into the buffer
+// a collection of commands forms a struct
 struct hog_cmd {
   enum hog_cmds type;
 
   // data the command may require
   union {
     int move_bytes;
+    const char *literal;
+
+    // names are used for lookup of definitions in config
+    const char *struct_name;
+    const char *enum_name;
+    const char *type_name;
   };
 };
 

@@ -8,6 +8,7 @@
 
 struct hog_rc {
   const struct hog_config *cfg;
+  int scope_level;
 };
 
 struct hog_rc hog_rc_init(const struct hog_config *cfg);

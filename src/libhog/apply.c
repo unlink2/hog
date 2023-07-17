@@ -29,6 +29,14 @@ size_t hog_apply(struct hog_rc *rc, struct hog_buffer *buf,
   case HOG_CMD_END:
     hog_buffer_null_term(buf);
     break;
+  case HOG_CMD_BEGIN_SCOPE:
+    rc->scope_level++;
+    break;
+  case HOG_CMD_END_SCOPE:
+    rc->scope_level--;
+    break;
+  case HOG_CMD_FMT_PRIMITIVE:
+    break;
   }
 
   return move;
