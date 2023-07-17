@@ -1,8 +1,17 @@
 #include "libhog/apply.h"
 #include "libhog/buffer.h"
 #include "libhog/error.h"
+#include <string.h>
 
-size_t hog_apply(struct hog_config *cfg, struct hog_buffer *buf,
+struct hog_rc hog_rc_init(const struct hog_config *cfg) {
+  struct hog_rc self;
+  memset(&self, 0, sizeof(self));
+  self.cfg = cfg;
+
+  return self;
+}
+
+size_t hog_apply(struct hog_rc *rc, struct hog_buffer *buf,
                  const uint8_t *input, size_t len, struct hog_cmd *cmd,
                  size_t offset) {
   size_t move = offset;
