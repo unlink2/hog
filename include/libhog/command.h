@@ -12,7 +12,7 @@ enum hog_cmds {
   HOG_CMD_BEGIN_SCOPE,
   HOG_CMD_END_SCOPE,
 
-  HOG_CMD_FMT_PRIMITIVE,
+  HOG_CMD_FMT_TYPE,
   HOG_CMD_FMT_LITERAL,
 
   HOG_CMD_MOVE_BYTES,
@@ -31,8 +31,6 @@ struct hog_cmd {
     const char *literal;
 
     // names are used for lookup of definitions in config
-    const char *struct_name;
-    const char *enum_name;
     const char *type_name;
   };
 };

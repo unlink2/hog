@@ -41,14 +41,11 @@ enum hog_types {
 #define HOG_TYPE_NO_INDIRECTION 0
 
 struct hog_type {
-  enum hog_types type;
+  // this is the original name of the type
+  // as it was defined
+  // this may be different than the mapped name
   const char *name;
-
-  // 0 means the value is a literal
-  // > 0 means the type is a pointer where each level of indrection
-  // is a pointer to a pointer and so on
-  // a pointer's size depends on arch_size in config
-  int ptr_level;
+  enum hog_types type;
 };
 
 // simple map between a type and its name
@@ -57,6 +54,12 @@ struct hog_type {
 struct hog_type_map {
   const char *name;
   const struct hog_type *type;
+
+  // 0 means the value is a literal
+  // > 0 means the type is a pointer where each level of indrection
+  // is a pointer to a pointer and so on
+  // a pointer's size depends on arch_size in config
+  int ptr_level;
 };
 
 #endif
