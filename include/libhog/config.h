@@ -11,6 +11,11 @@ struct hog_config {
 
   // holds struct type map
   struct hog_vec types_map;
+
+  // list of all commands
+  struct hog_vec cmds;
+  // list of key/value map for commands
+  struct hog_vec cmds_map;
 };
 
 struct hog_config hog_config_init(void);

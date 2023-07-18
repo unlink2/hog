@@ -2,6 +2,7 @@
 #define TYPES_H_
 
 #include "libhog/macros.h"
+#include "libhog/vec.h"
 
 enum hog_types {
   // 0-sized type
@@ -44,9 +45,17 @@ struct hog_type {
   // this is the original name of the type
   // as it was defined
   // this may be different than the mapped name
+  // this name may be used to look up more complex struct
+  // command sequences
   const char *name;
   enum hog_types type;
 };
+
+struct hog_type hog_type_init(enum hog_types type, const char *name);
+
+void hog_type_free(struct hog_type *self);
+
+void hog_type_vec_free(struct hog_vec *self);
 
 // simple map between a type and its name
 // using pointers allows typedef like re-naming while sitll
