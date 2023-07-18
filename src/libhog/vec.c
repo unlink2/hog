@@ -53,7 +53,7 @@ void *hog_vec_pop(struct hog_vec *self) {
   return d;
 }
 
-void *hog_vec_get(struct hog_vec *self, size_t index) {
+void *hog_vec_get(const struct hog_vec *self, size_t index) {
   if (self->len <= index) {
     return NULL;
   }

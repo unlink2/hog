@@ -35,7 +35,7 @@ struct hog_cmd {
   };
   // next command offset into the initial vec
   // this may be followed safely until the comand type is HOG_CMD_END
-  int next;
+  size_t next;
 };
 
 // key/value map for commands
@@ -50,11 +50,12 @@ struct hog_cmd hog_cmd_move_init(int move_bytes);
 
 // looks up a list of commands
 // returns the first command from the vec
-struct hog_cmd *hog_cmd_lookup(const struct hog_vec *self, const char *name);
+const struct hog_cmd *hog_cmd_lookup(const struct hog_vec *self,
+                                     const char *name);
 
 // returns NULL when type is HOG_CMD_END
 // otherwise will return the apropriate pointer
-struct hog_cmd *hog_cmd_next(const struct hog_cmd *self,
-                             const struct hog_vec *list);
+const struct hog_cmd *hog_cmd_next(const struct hog_cmd *self,
+                                   const struct hog_vec *list);
 
 #endif
