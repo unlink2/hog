@@ -8,7 +8,6 @@ struct hog_config {
 
   // holds all literal type definitions
   struct hog_vec types;
-
   // holds struct type map
   struct hog_vec types_map;
 

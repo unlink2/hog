@@ -71,4 +71,11 @@ struct hog_type_map {
   int ptr_level;
 };
 
+struct hog_type_map hog_type_map_init(const struct hog_type *type,
+                                      const char *name, int ptr_level);
+
+void hog_type_map_free(struct hog_type_map *self);
+
+void hog_type_map_vec_free(struct hog_vec *self);
+
 #endif

@@ -4,9 +4,15 @@
 #include "libhog/types.h"
 #include <stddef.h>
 
+#define HOG_CMD_END_OF_LIST -1
+
 enum hog_cmds {
   HOG_CMD_INVAL = 0,
+
+  // begin a new command list
   HOG_CMD_BEGIN,
+
+  // end the current command
   HOG_CMD_END,
 
   HOG_CMD_BEGIN_SCOPE,
@@ -38,15 +44,22 @@ struct hog_cmd {
   size_t next;
 };
 
+struct hog_cmd hog_cmd_init(void);
+
+struct hog_cmd hog_cmd_move_init(int move_bytes);
+
+void hog_cmd_free(struct hog_cmd *self);
+
+void hog_cmd_vec_free(struct hog_vec *self);
+
 // key/value map for commands
 struct hog_cmd_map {
   const char *name;
   const struct hog_cmd *cmd;
 };
 
-struct hog_cmd hog_cmd_init(void);
-
-struct hog_cmd hog_cmd_move_init(int move_bytes);
+struct hog_cmd_map hog_cmd_map_init(const char *name,
+                                    const struct hog_cmd *cmd);
 
 // looks up a list of commands
 // returns the first command from the vec
@@ -57,5 +70,8 @@ const struct hog_cmd *hog_cmd_lookup(const struct hog_vec *self,
 // otherwise will return the apropriate pointer
 const struct hog_cmd *hog_cmd_next(const struct hog_cmd *self,
                                    const struct hog_vec *list);
+
+void hog_cmd_map_free(struct hog_cmd_map *self);
+void hog_cmd_map_vec_free(struct hog_vec *self);
 
 #endif
