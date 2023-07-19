@@ -6,5 +6,7 @@
 
 int main(int argc, char **argv) {
   struct hog_config cfg = hog_args_to_config(argc, argv);
+
+  hog_config_free(&cfg);
   return 0;
 }

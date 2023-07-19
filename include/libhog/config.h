@@ -19,4 +19,6 @@ struct hog_config {
 
 struct hog_config hog_config_init(void);
 
+void hog_config_free(struct hog_config *self);
+
 #endif
