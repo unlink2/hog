@@ -21,7 +21,7 @@ struct hog_type_map *hog_config_type_add(struct hog_config *self,
                                          const char *name,
                                          struct hog_type type) {
   struct hog_type *t = hog_vec_push(&self->types, &type);
-  struct hog_type_map map = hog_type_map_init(t, name, 0);
+  struct hog_type_map map = hog_type_map_init(t, name);
 
   return hog_vec_push(&self->types_map, &map);
 }
@@ -43,18 +43,13 @@ struct hog_type_map *hog_config_type_lookup(struct hog_config *self,
 
 struct hog_type_map *hog_config_type_add_alias(struct hog_config *self,
                                                const char *alias_name,
-                                               const char *type_name,
-                                               int ptr_level) {
+                                               const char *type_name) {
   struct hog_type_map *tm = hog_config_type_lookup(self, type_name);
   if (!tm) {
     return NULL;
   }
 
-  // ptr levels are additive to mirror pointers to pointers
-  ptr_level += tm->ptr_level;
-
-  struct hog_type_map type_map =
-      hog_type_map_init(tm->type, type_name, ptr_level);
+  struct hog_type_map type_map = hog_type_map_init(tm->type, type_name);
 
   return hog_vec_push(&self->types_map, &type_map);
 }

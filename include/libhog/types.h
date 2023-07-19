@@ -49,9 +49,11 @@ struct hog_type {
   // command sequences
   const char *name;
   enum hog_types type;
+  struct hog_type *ptr_to;
 };
 
-struct hog_type hog_type_init(enum hog_types type, const char *name);
+struct hog_type hog_type_init(enum hog_types type, const char *name,
+                              struct hog_type *ptr_to);
 
 void hog_type_free(struct hog_type *self);
 
@@ -63,16 +65,10 @@ void hog_type_vec_free(struct hog_vec *self);
 struct hog_type_map {
   const char *name;
   const struct hog_type *type;
-
-  // 0 means the value is a literal
-  // > 0 means the type is a pointer where each level of indrection
-  // is a pointer to a pointer and so on
-  // a pointer's size depends on arch_size in config
-  int ptr_level;
 };
 
 struct hog_type_map hog_type_map_init(const struct hog_type *type,
-                                      const char *name, int ptr_level);
+                                      const char *name);
 
 void hog_type_map_free(struct hog_type_map *self);
 

@@ -29,8 +29,7 @@ struct hog_type_map *hog_config_type_add(struct hog_config *self,
 // creates a new type alias for an existing type name
 struct hog_type_map *hog_config_type_add_alias(struct hog_config *self,
                                                const char *alias_name,
-                                               const char *type_name,
-                                               int ptr_level);
+                                               const char *type_name);
 
 struct hog_type_map *hog_config_type_lookup(struct hog_config *self,
                                             const char *name);
