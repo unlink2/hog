@@ -14,7 +14,7 @@ struct hog_vec {
 
 struct hog_vec hog_vec_init(size_t stride);
 
-void hog_vec_push(struct hog_vec *self, void *item);
+void *hog_vec_push(struct hog_vec *self, void *item);
 void *hog_vec_pop(struct hog_vec *self);
 
 void *hog_vec_get(const struct hog_vec *self, size_t index);

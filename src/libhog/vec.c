@@ -32,17 +32,18 @@ void hog_vec_resize(struct hog_vec *self) {
   }
 }
 
-void hog_vec_push(struct hog_vec *self, void *item) {
+void *hog_vec_push(struct hog_vec *self, void *item) {
   if (self->len >= self->max_len) {
     hog_vec_resize(self);
     if (hog_err()) {
       hog_error("Unable to resize vec %p!\n", (void *)self);
-      return;
+      return NULL;
     }
   }
 
   memcpy(hog_vec_offset(self, self->len), item, self->stride);
-  self->len++;
+
+  return hog_vec_get(self, self->len++);
 }
 
 void *hog_vec_pop(struct hog_vec *self) {

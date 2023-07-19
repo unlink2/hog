@@ -22,18 +22,25 @@ struct hog_config hog_config_init(void);
 
 // adds a new type and an initial type alias
 // returns the initial alias
-struct hog_type_map *hog_config_type_add(const char *name,
+struct hog_type_map *hog_config_type_add(struct hog_config *self,
+                                         const char *name,
                                          struct hog_type type);
 
 // creates a new type alias for an existing type name
-struct hog_type_map *hog_config_type_add_alias(const char *alias_name,
+struct hog_type_map *hog_config_type_add_alias(struct hog_config *self,
+                                               const char *alias_name,
                                                const char *type_name,
                                                int ptr_level);
 
+struct hog_type_map *hog_config_type_lookup(struct hog_config *self,
+                                            const char *name);
+
 // creates a new command
-struct hog_cmd *hog_config_cmd_add(struct hog_cmd cmd, size_t next);
+struct hog_cmd *hog_config_cmd_add(struct hog_config *self, struct hog_cmd cmd,
+                                   size_t next);
 // adds a name to an existing command
-struct hog_cmd_map *hog_config_cmd_add_alias(const char *name,
+struct hog_cmd_map *hog_config_cmd_add_alias(struct hog_config *self,
+                                             const char *name,
                                              struct hog_cmd *cmd);
 
 void hog_config_free(struct hog_config *self);
