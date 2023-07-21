@@ -5,15 +5,25 @@
 #include <string.h>
 
 struct hog_type hog_type_init(enum hog_types type, const char *name,
-                              struct hog_type *ptr_to) {
+                              size_t ptr_to) {
   struct hog_type self;
   memset(&self, 0, sizeof(self));
 
   self.name = strdup(name);
   self.type = type;
-  self.ptr_to = ptr_to;
+  self.ptr_to_idx = ptr_to;
 
   return self;
+}
+
+int hog_type_ptr_depth(struct hog_type *self, struct hog_vec *types) {
+  struct hog_type *t = self;
+  int i = 0;
+  while (t->ptr_to_idx != HOG_TYPE_NULL_PTR) {
+    t = hog_vec_get(types, i++);
+  }
+
+  return i;
 }
 
 void hog_type_free(struct hog_type *self) { free((void *)self->name); }

@@ -39,7 +39,7 @@ enum hog_types {
   HOG_TYPE_ENUM,
 };
 
-#define HOG_TYPE_NO_INDIRECTION 0
+#define HOG_TYPE_NULL_PTR (-1)
 
 struct hog_type {
   // this is the original name of the type
@@ -49,11 +49,15 @@ struct hog_type {
   // command sequences
   const char *name;
   enum hog_types type;
-  struct hog_type *ptr_to;
+  // index into list of all possible
+  // types this item points to
+  size_t ptr_to_idx;
 };
 
 struct hog_type hog_type_init(enum hog_types type, const char *name,
-                              struct hog_type *ptr_to);
+                              size_t ptr_to);
+
+int hog_type_ptr_depth(struct hog_type *self, struct hog_vec *types);
 
 void hog_type_free(struct hog_type *self);
 
