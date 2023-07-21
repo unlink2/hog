@@ -1,5 +1,7 @@
 # hog
 
+Hog is a memory stream printer utility that allows you to define data structures for memory dumps and make them gerpable.
+
 ## Table of content
 
 - [Installation](#Installation)
