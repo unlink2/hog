@@ -18,6 +18,9 @@ enum hog_cmds {
   HOG_CMD_BEGIN_SCOPE,
   HOG_CMD_END_SCOPE,
 
+  // formats a type based on its primive
+  // and if applicable its current output format setting
+  // in hog_rc (e.g. dec, hex, bin or char or integers)
   HOG_CMD_FMT_TYPE,
   HOG_CMD_FMT_LITERAL,
 

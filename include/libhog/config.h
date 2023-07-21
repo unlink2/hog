@@ -20,6 +20,9 @@ struct hog_config {
 
 struct hog_config hog_config_init(void);
 
+// create built in types and type names
+struct hog_config hog_config_init_builtins(void);
+
 // FIXME: raise errors when add or add_alias attempts to add an existing name
 
 // adds a new type and an initial type alias

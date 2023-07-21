@@ -39,8 +39,6 @@ enum hog_types {
   HOG_TYPE_ENUM,
 };
 
-#define HOG_TYPE_NULL_PTR (-1)
-
 struct hog_type {
   // this is the original name of the type
   // as it was defined

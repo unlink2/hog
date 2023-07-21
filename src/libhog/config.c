@@ -17,6 +17,15 @@ struct hog_config hog_config_init(void) {
   return self;
 }
 
+void hog_config_def_builtin(struct hog_config *self, const char *name,
+                            enum hog_types type, const char *fmt) {}
+
+struct hog_config hog_config_init_builtins(void) {
+  struct hog_config self = hog_config_init();
+
+  return self;
+}
+
 struct hog_type_map *hog_config_type_add(struct hog_config *self,
                                          const char *name,
                                          struct hog_type type) {

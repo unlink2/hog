@@ -19,7 +19,7 @@ struct hog_type hog_type_init(enum hog_types type, const char *name,
 int hog_type_ptr_depth(struct hog_type *self, struct hog_vec *types) {
   struct hog_type *t = self;
   int i = 0;
-  while (t->ptr_to_idx != HOG_TYPE_NULL_PTR) {
+  while (t->ptr_to_idx != HOG_NULL_IDX) {
     t = hog_vec_get(types, i++);
   }
 
