@@ -24,4 +24,5 @@ void test_apply_int(void **state) {
 
   hog_buffer_free(&buf);
   hog_config_free(&cfg);
+  hog_rc_free(&rc);
 }
