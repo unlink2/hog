@@ -8,6 +8,7 @@
 #include "libhog/vec.h"
 #include "libhog/log.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 // TODO: this is a non-standard header
@@ -48,7 +49,7 @@ int64_t hog_apply_read(struct hog_rc *rc, const uint8_t *input,
     return 0;
   }
 
-  uint64_t res = 0;
+  int64_t res = 0;
   memcpy(&res, start, read_len);
 
   if (rc->endianess == HOG_ENDIAN_BIG) {
@@ -57,18 +58,46 @@ int64_t hog_apply_read(struct hog_rc *rc, const uint8_t *input,
     res = htole64(res);
   }
 
-  return (int64_t)res;
+  return res;
 }
 
-void hog_apply_fmt_int(struct hog_rc *rc, struct hog_buffer *buf,
-                       int64_t data) {
+void hog_apply_fmt_int(struct hog_rc *rc, struct hog_buffer *buf, int64_t data,
+                       enum hog_types type) {
 
   size_t written = 0;
   char *b = (char *)hog_buffer_next(buf, 16);
 
   switch (rc->int_fmt) {
   case HOG_FMT_INT_DEC:
-    written = sprintf(b, "%ld", data);
+    switch (type) {
+    case HOG_TYPE_U8:
+      written = sprintf(b, "%d", (uint8_t)data);
+      break;
+    case HOG_TYPE_I8:
+      written = sprintf(b, "%d", (int8_t)data);
+      break;
+    case HOG_TYPE_U16:
+      written = sprintf(b, "%d", (uint16_t)data);
+      break;
+    case HOG_TYPE_I16:
+      written = sprintf(b, "%d", (int16_t)data);
+      break;
+    case HOG_TYPE_U32:
+      written = sprintf(b, "%d", (uint32_t)data);
+      break;
+    case HOG_TYPE_I32:
+      written = sprintf(b, "%d", (int32_t)data);
+      break;
+    case HOG_TYPE_I64:
+    case HOG_TYPE_ISIZE:
+      written = sprintf(b, "%ld", (int64_t)data);
+      break;
+    case HOG_TYPE_U64:
+    case HOG_TYPE_USIZE:
+    default:
+      written = sprintf(b, "%ld", (uint64_t)data);
+      break;
+    }
     break;
   case HOG_FMT_INT_HEX:
     written = sprintf(b, "0x%lx", data);
@@ -105,7 +134,7 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
   }
 
   if (t->ptr_to_idx != HOG_NULL_IDX) {
-    hog_apply_fmt_int(rc, buf, data);
+    hog_apply_fmt_int(rc, buf, data, t->type);
   } else {
     switch (t->type) {
     case HOG_TYPE_VOID:
@@ -120,7 +149,7 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
     case HOG_TYPE_I32:
     case HOG_TYPE_I64:
     case HOG_TYPE_ISIZE:
-      hog_apply_fmt_int(rc, buf, data);
+      hog_apply_fmt_int(rc, buf, data, t->type);
       break;
     case HOG_TYPE_F32:
 
