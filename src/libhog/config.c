@@ -18,9 +18,9 @@ struct hog_config hog_config_init(void) {
   return self;
 }
 
-void hog_config_def_builtin(struct hog_config *self, const char *name,
-                            enum hog_types type) {
-  hog_config_type_add(self, name, hog_type_init(type, name, HOG_NULL_IDX));
+void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
+                                enum hog_types type, size_t ptr_idx) {
+  hog_config_type_add(self, name, hog_type_init(type, name, ptr_idx));
 
   size_t index = HOG_NULL_IDX;
   struct hog_cmd *cmd = hog_config_cmd_add(
@@ -29,8 +29,17 @@ void hog_config_def_builtin(struct hog_config *self, const char *name,
   hog_config_cmd_add_alias(self, name, cmd);
 }
 
+void hog_config_def_builtin(struct hog_config *self, const char *name,
+                            enum hog_types type) {
+  hog_config_def_builtin_ptr(self, name, type, HOG_NULL_IDX);
+}
+
 struct hog_config hog_config_init_builtins(void) {
   struct hog_config self = hog_config_init();
+
+  hog_config_def_builtin(&self, "void", HOG_TYPE_VOID);
+  // we know that void is the 0th type, hence a void pointer points to index 0
+  hog_config_def_builtin_ptr(&self, "void", HOG_TYPE_VOID, 0);
 
   hog_config_def_builtin(&self, "u8", HOG_TYPE_U8);
   hog_config_def_builtin(&self, "u16", HOG_TYPE_U16);
@@ -46,8 +55,6 @@ struct hog_config hog_config_init_builtins(void) {
 
   hog_config_def_builtin(&self, "f32", HOG_TYPE_F32);
   hog_config_def_builtin(&self, "f64", HOG_TYPE_F64);
-
-  hog_config_def_builtin(&self, "void", HOG_TYPE_VOID);
 
   return self;
 }
