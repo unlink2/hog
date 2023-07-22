@@ -1,6 +1,7 @@
 #ifndef COMMAND_H_
 #define COMMAND_H_
 
+#include "libhog/config.h"
 #include "libhog/types.h"
 #include <stddef.h>
 
@@ -25,6 +26,8 @@ enum hog_cmds {
   HOG_CMD_FMT_LITERAL,
 
   HOG_CMD_MOVE_BYTES,
+
+  HOG_CMD_SET_INT_FMT,
 };
 
 // a command is a single instruction
@@ -41,6 +44,7 @@ struct hog_cmd {
 
     // names are used for lookup of definitions in config
     const char *type_name;
+    enum hog_int_fmt int_fmt;
   };
   // next command offset into the initial vec
   // this may be followed safely until the comand type is HOG_CMD_END
@@ -60,16 +64,10 @@ void hog_cmd_vec_free(struct hog_vec *self);
 // key/value map for commands
 struct hog_cmd_map {
   const char *name;
-  const struct hog_cmd *cmd;
+  size_t cmd;
 };
 
-struct hog_cmd_map hog_cmd_map_init(const char *name,
-                                    const struct hog_cmd *cmd);
-
-// looks up a list of commands
-// returns the first command from the vec
-const struct hog_cmd *hog_cmd_lookup(const struct hog_vec *self,
-                                     const char *name);
+struct hog_cmd_map hog_cmd_map_init(const char *name, const size_t cmd);
 
 // returns NULL when type is HOG_CMD_END
 // otherwise will return the apropriate pointer

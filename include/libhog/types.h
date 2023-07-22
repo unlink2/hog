@@ -55,7 +55,9 @@ struct hog_type {
 struct hog_type hog_type_init(enum hog_types type, const char *name,
                               size_t ptr_to);
 
-int hog_type_ptr_depth(struct hog_type *self, struct hog_vec *types);
+int hog_type_ptr_depth(const struct hog_type *self, struct hog_vec *types);
+
+size_t hog_type_sizeof(const struct hog_type *self, size_t arch_len);
 
 void hog_type_free(struct hog_type *self);
 
@@ -66,11 +68,10 @@ void hog_type_vec_free(struct hog_vec *self);
 // referencing essentially the same type internally
 struct hog_type_map {
   const char *name;
-  const struct hog_type *type;
+  size_t type;
 };
 
-struct hog_type_map hog_type_map_init(const struct hog_type *type,
-                                      const char *name);
+struct hog_type_map hog_type_map_init(const size_t type, const char *name);
 
 void hog_type_map_free(struct hog_type_map *self);
 

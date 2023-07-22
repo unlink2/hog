@@ -4,6 +4,7 @@
 #include "libhog/test/tok.h"
 #include "libhog/test/buffer.h"
 #include "libhog/test/ini.h"
+#include "libhog/test/apply.h"
 
 static int test_setup(void **state) {
   hog_err_set(HOG_OK);
@@ -17,6 +18,7 @@ int main(int arc, char **argv) {
       cmocka_unit_test(test_buffer),
       cmocka_unit_test(test_tok),
       cmocka_unit_test_setup(test_ini, test_setup),
+      cmocka_unit_test_setup(test_apply_int, test_setup),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

@@ -1,5 +1,6 @@
 #include "libhog/command.h"
 #include "libhog/vec.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -53,8 +54,7 @@ void hog_cmd_vec_free(struct hog_vec *self) {
   hog_vec_free(self);
 }
 
-struct hog_cmd_map hog_cmd_map_init(const char *name,
-                                    const struct hog_cmd *cmd) {
+struct hog_cmd_map hog_cmd_map_init(const char *name, const size_t cmd) {
   struct hog_cmd_map self;
   memset(&self, 0, sizeof(self));
 
@@ -62,19 +62,6 @@ struct hog_cmd_map hog_cmd_map_init(const char *name,
   self.cmd = cmd;
 
   return self;
-}
-
-const struct hog_cmd *hog_cmd_lookup(const struct hog_vec *self,
-                                     const char *name) {
-  size_t name_len = strlen(name);
-  for (size_t i = 0; i < self->len; i++) {
-    struct hog_cmd_map *entry = hog_vec_get(self, i);
-    if (strncmp(name, entry->name, name_len) == 0) {
-      return entry->cmd;
-    }
-  }
-
-  return NULL;
 }
 
 const struct hog_cmd *hog_cmd_next(const struct hog_cmd *self,

@@ -29,6 +29,13 @@ enum hog_error {
   HOG_ERR_INI_SECTION_INVAL,
   HOG_ERR_INI_BAD_KEY,
   HOG_ERR_CMD_INVAL,
+
+  // const char *typename is in details
+  HOG_ERR_TYPE_NOT_FOUND,
+  // size_t offset as error detail
+  HOG_ERR_OUT_OF_DATA,
+  // const char *cmd_name is in details
+  HOG_ERR_CMD_NOT_FOUND,
   // errno is stored in err_detail
   HOG_ERRNO
 };
