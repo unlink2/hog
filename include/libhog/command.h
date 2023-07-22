@@ -24,6 +24,8 @@ enum hog_cmds {
   // in hog_rc (e.g. dec, hex, bin or char or integers)
   HOG_CMD_FMT_TYPE,
   HOG_CMD_FMT_LITERAL,
+  // same as literal, but it won't be freed
+  HOG_CMD_FMT_STATIC_LITERAL,
   // reads the current name from hog_rc and outputs it
   HOG_CMD_FMT_NAME,
 
@@ -57,6 +59,7 @@ struct hog_cmd hog_cmd_init(enum hog_cmds type, size_t next);
 
 struct hog_cmd hog_cmd_move_init(int move_bytes, size_t next);
 struct hog_cmd hog_cmd_literal_init(const char *literal, size_t next);
+struct hog_cmd hog_cmd_static_literal_init(const char *literal, size_t next);
 struct hog_cmd hog_cmd_type_init(const char *type_name, size_t next);
 
 void hog_cmd_free(struct hog_cmd *self);

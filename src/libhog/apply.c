@@ -69,11 +69,14 @@ void hog_apply_fmt_int(struct hog_rc *rc, struct hog_buffer *buf,
   switch (rc->int_fmt) {
   case HOG_FMT_INT_DEC:
     written = sprintf(b, "%ld", data);
+    break;
   case HOG_FMT_INT_HEX:
     written = sprintf(b, "0x%lx", data);
+    break;
   case HOG_FMT_INT_BIN:
     // FIXME: print 64 bit integers in binary
     written = sprintf(b, "0b%b", (int)data);
+    break;
   case HOG_FMT_INT_CHAR:
     written = sprintf(b, "'%c'", (char)data);
     break;
@@ -189,6 +192,7 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
   case HOG_CMD_FMT_TYPE:
     move = hog_apply_fmt_type(rc, buf, input, len, cmd, offset);
     break;
+  case HOG_CMD_FMT_STATIC_LITERAL:
   case HOG_CMD_FMT_LITERAL:
     move = hog_apply_fmt_literal(rc, buf, input, len, cmd, offset);
     break;

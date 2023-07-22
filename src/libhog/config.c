@@ -26,8 +26,11 @@ void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
   size_t index = HOG_NULL_IDX;
 
   hog_config_cmd_add(self, hog_cmd_type_init(name, index), &index);
-  hog_config_cmd_add(self, hog_cmd_literal_init(name, index), &index);
+  hog_config_cmd_add(self, hog_cmd_static_literal_init(" = ", index), &index);
   hog_config_cmd_add(self, hog_cmd_init(HOG_CMD_FMT_NAME, index), &index);
+  hog_config_cmd_add(self, hog_cmd_static_literal_init(" ", index), &index);
+  hog_config_cmd_add(self, hog_cmd_literal_init(name, index), &index);
+
   hog_config_cmd_add_alias(self, name, index);
 }
 

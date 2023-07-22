@@ -12,6 +12,8 @@
 void test_apply_int(void **state) {
   struct hog_config cfg = hog_config_init_builtins();
   struct hog_rc rc = hog_rc_init(&cfg);
+  hog_rc_name(&rc, "test_name");
+
   struct hog_buffer buf = hog_buffer_init();
 
   const uint8_t data[] = {12, 34};

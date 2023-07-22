@@ -26,6 +26,12 @@ struct hog_cmd hog_cmd_literal_init(const char *literal, size_t next) {
   return self;
 }
 
+struct hog_cmd hog_cmd_static_literal_init(const char *literal, size_t next) {
+  struct hog_cmd self = hog_cmd_init(HOG_CMD_FMT_STATIC_LITERAL, next);
+  self.literal = literal;
+  return self;
+}
+
 struct hog_cmd hog_cmd_type_init(const char *type_name, size_t next) {
   struct hog_cmd self = hog_cmd_init(HOG_CMD_FMT_TYPE, next);
   self.type_name = strdup(type_name);
