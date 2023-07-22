@@ -47,9 +47,11 @@ struct hog_cmd {
   size_t next;
 };
 
-struct hog_cmd hog_cmd_init(void);
+struct hog_cmd hog_cmd_init(enum hog_cmds type, size_t next);
 
-struct hog_cmd hog_cmd_move_init(int move_bytes);
+struct hog_cmd hog_cmd_move_init(int move_bytes, size_t next);
+struct hog_cmd hog_cmd_literal_init(const char *literal, size_t next);
+struct hog_cmd hog_cmd_type_init(const char *type_name, size_t next);
 
 void hog_cmd_free(struct hog_cmd *self);
 

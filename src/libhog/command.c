@@ -3,23 +3,47 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct hog_cmd hog_cmd_init(void) {
+struct hog_cmd hog_cmd_init(enum hog_cmds type, size_t next) {
   struct hog_cmd self;
   memset(&self, 0, sizeof(self));
+  self.type = type;
+  self.next = next;
 
   return self;
 }
 
-struct hog_cmd hog_cmd_move_init(int move_bytes) {
-  struct hog_cmd self = hog_cmd_init();
+struct hog_cmd hog_cmd_move_init(int move_bytes, size_t next) {
+  struct hog_cmd self = hog_cmd_init(HOG_CMD_MOVE_BYTES, next);
   self.move_bytes = move_bytes;
-  self.type = HOG_CMD_MOVE_BYTES;
+
+  return self;
+}
+
+struct hog_cmd hog_cmd_literal_init(const char *literal, size_t next) {
+  struct hog_cmd self = hog_cmd_init(HOG_CMD_FMT_LITERAL, next);
+  self.literal = strdup(literal);
+  return self;
+}
+
+struct hog_cmd hog_cmd_type_init(const char *type_name, size_t next) {
+  struct hog_cmd self = hog_cmd_init(HOG_CMD_FMT_TYPE, next);
+  self.type_name = strdup(type_name);
 
   return self;
 }
 
 void hog_cmd_free(struct hog_cmd *self) {
   // TODO: free correctly
+  switch (self->type) {
+  case HOG_CMD_FMT_LITERAL:
+    free((void *)self->literal);
+    break;
+  case HOG_CMD_FMT_TYPE:
+    free((void *)self->type_name);
+    break;
+  default:
+    break;
+  }
 }
 
 void hog_cmd_vec_free(struct hog_vec *self) {

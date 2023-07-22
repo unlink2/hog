@@ -1,5 +1,6 @@
 #include "libhog/config.h"
 #include "libhog/command.h"
+#include "libhog/macros.h"
 #include "libhog/types.h"
 #include "libhog/vec.h"
 #include <string.h>
@@ -18,10 +19,35 @@ struct hog_config hog_config_init(void) {
 }
 
 void hog_config_def_builtin(struct hog_config *self, const char *name,
-                            enum hog_types type, const char *fmt) {}
+                            enum hog_types type) {
+  hog_config_type_add(self, name, hog_type_init(type, name, HOG_NULL_IDX));
+
+  size_t index = HOG_NULL_IDX;
+  struct hog_cmd *cmd = hog_config_cmd_add(
+      self, hog_cmd_init(HOG_CMD_FMT_LITERAL, index), &index);
+  hog_config_cmd_add(self, hog_cmd_init(HOG_CMD_FMT_TYPE, index), &index);
+  hog_config_cmd_add_alias(self, name, cmd);
+}
 
 struct hog_config hog_config_init_builtins(void) {
   struct hog_config self = hog_config_init();
+
+  hog_config_def_builtin(&self, "u8", HOG_TYPE_U8);
+  hog_config_def_builtin(&self, "u16", HOG_TYPE_U16);
+  hog_config_def_builtin(&self, "u32", HOG_TYPE_U32);
+  hog_config_def_builtin(&self, "u64", HOG_TYPE_U64);
+  hog_config_def_builtin(&self, "usize", HOG_TYPE_USIZE);
+
+  hog_config_def_builtin(&self, "i8", HOG_TYPE_I8);
+  hog_config_def_builtin(&self, "i16", HOG_TYPE_I16);
+  hog_config_def_builtin(&self, "i32", HOG_TYPE_I32);
+  hog_config_def_builtin(&self, "i64", HOG_TYPE_I64);
+  hog_config_def_builtin(&self, "isize", HOG_TYPE_ISIZE);
+
+  hog_config_def_builtin(&self, "f32", HOG_TYPE_F32);
+  hog_config_def_builtin(&self, "f64", HOG_TYPE_F64);
+
+  hog_config_def_builtin(&self, "void", HOG_TYPE_VOID);
 
   return self;
 }

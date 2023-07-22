@@ -9,6 +9,8 @@
 struct hog_rc {
   const struct hog_config *cfg;
   int scope_level;
+  enum hog_int_fmt int_fmt;
+  enum hog_endianess endianess;
 };
 
 struct hog_rc hog_rc_init(const struct hog_config *cfg);
