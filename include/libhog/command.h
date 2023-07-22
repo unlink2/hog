@@ -24,6 +24,8 @@ enum hog_cmds {
   // in hog_rc (e.g. dec, hex, bin or char or integers)
   HOG_CMD_FMT_TYPE,
   HOG_CMD_FMT_LITERAL,
+  // reads the current name from hog_rc and outputs it
+  HOG_CMD_FMT_NAME,
 
   HOG_CMD_MOVE_BYTES,
 

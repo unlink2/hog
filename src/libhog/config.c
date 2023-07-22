@@ -24,13 +24,11 @@ void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
   hog_config_type_add(self, name, hog_type_init(type, name, ptr_idx));
 
   size_t index = HOG_NULL_IDX;
-  size_t head_index = HOG_NULL_IDX;
 
+  hog_config_cmd_add(self, hog_cmd_type_init(name, index), &index);
   hog_config_cmd_add(self, hog_cmd_literal_init(name, index), &index);
-  head_index = index;
-
-  hog_config_cmd_add(self, hog_cmd_init(HOG_CMD_FMT_TYPE, index), &index);
-  hog_config_cmd_add_alias(self, name, head_index);
+  hog_config_cmd_add(self, hog_cmd_init(HOG_CMD_FMT_NAME, index), &index);
+  hog_config_cmd_add_alias(self, name, index);
 }
 
 void hog_config_def_builtin(struct hog_config *self, const char *name,

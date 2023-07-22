@@ -19,8 +19,22 @@ struct hog_rc hog_rc_init(const struct hog_config *cfg) {
   struct hog_rc self;
   memset(&self, 0, sizeof(self));
   self.cfg = cfg;
+  self.name = NULL;
 
   return self;
+}
+
+void hog_rc_name(struct hog_rc *rc, const char *name) {
+  if (rc->name) {
+    free(rc->name);
+  }
+  rc->name = strdup(name);
+}
+
+void hog_rc_free(struct hog_rc *rc) {
+  if (rc->name) {
+    free(rc->name);
+  }
 }
 
 int64_t hog_apply_read(struct hog_rc *rc, const uint8_t *input,
@@ -69,8 +83,8 @@ void hog_apply_fmt_int(struct hog_rc *rc, struct hog_buffer *buf,
 }
 
 size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
-                          const uint8_t *input, size_t len, struct hog_cmd *cmd,
-                          size_t offset) {
+                          const uint8_t *input, size_t len,
+                          const struct hog_cmd *cmd, size_t offset) {
   // look up data type
   const struct hog_type *t =
       hog_config_type_lookup(rc->cfg, cmd->type_name, NULL);
@@ -123,11 +137,27 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
 size_t hog_apply_fmt_literal(struct hog_rc *rc, struct hog_buffer *buf,
                              const uint8_t *input, size_t len,
                              const struct hog_cmd *cmd, size_t offset) {
+  if (!cmd->literal) {
+    return 0;
+  }
   size_t lit_len = strlen(cmd->literal);
 
   char *b = (char *)hog_buffer_next(buf, lit_len);
   memcpy(b, cmd->literal, lit_len);
   hog_buffer_adv(buf, lit_len);
+
+  return 0;
+}
+
+size_t hog_apply_fmt_name(struct hog_rc *rc, struct hog_buffer *buf) {
+  if (!rc->name) {
+    return 0;
+  }
+  size_t name_len = strlen(rc->name);
+
+  char *b = (char *)hog_buffer_next(buf, name_len);
+  memcpy(b, rc->name, name_len);
+  hog_buffer_adv(buf, name_len);
 
   return 0;
 }
@@ -161,6 +191,9 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
     break;
   case HOG_CMD_FMT_LITERAL:
     move = hog_apply_fmt_literal(rc, buf, input, len, cmd, offset);
+    break;
+  case HOG_CMD_FMT_NAME:
+    move = hog_apply_fmt_name(rc, buf);
     break;
   }
 

@@ -9,12 +9,16 @@
 
 struct hog_rc {
   const struct hog_config *cfg;
+  char *name;
+
   enum hog_int_fmt int_fmt;
   enum hog_endianess endianess;
   int scope_level;
 };
 
 struct hog_rc hog_rc_init(const struct hog_config *cfg);
+void hog_rc_name(struct hog_rc *rc, const char *name);
+void hog_rc_free(struct hog_rc *rc);
 
 // read data from the input
 int64_t hog_apply_read(struct hog_rc *rc, const uint8_t *input,
