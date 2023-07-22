@@ -39,7 +39,7 @@ struct hog_config hog_config_init_builtins(void) {
 
   hog_config_def_builtin(&self, "void", HOG_TYPE_VOID);
   // we know that void is the 0th type, hence a void pointer points to index 0
-  hog_config_def_builtin_ptr(&self, "void", HOG_TYPE_VOID, 0);
+  hog_config_def_builtin_ptr(&self, "void*", HOG_TYPE_VOID, 0);
 
   hog_config_def_builtin(&self, "u8", HOG_TYPE_U8);
   hog_config_def_builtin(&self, "u16", HOG_TYPE_U16);
