@@ -56,7 +56,7 @@ const char *hog_err_to_str(enum hog_error self);
 // to indicate a failure in a call
 void hog_err_set(enum hog_error err);
 
-void hog_err_print(FILE *f);
+enum hog_error hog_err_print(FILE *f);
 
 // return error code and resets value
 // to OK

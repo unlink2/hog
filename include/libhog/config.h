@@ -36,6 +36,7 @@ struct hog_config {
   char scope_close;
   char array_open;
   char array_close;
+  char array_sep;
   char new_line;
 };
 
@@ -45,6 +46,9 @@ struct hog_config hog_config_init(void);
 struct hog_config hog_config_init_builtins(void);
 
 // FIXME: raise errors when add or add_alias attempts to add an existing name
+
+void hog_config_def_builtin_type(struct hog_config *self, const char *name,
+                                 struct hog_type type);
 
 // adds a new type and an initial type alias
 // returns the initial alias

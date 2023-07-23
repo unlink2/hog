@@ -22,6 +22,7 @@ struct hog_config hog_config_init(void) {
   self.scope_close = '}';
   self.array_open = '[';
   self.array_close = ']';
+  self.array_sep = ',';
   self.new_line = '\n';
 
   return self;

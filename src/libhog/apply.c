@@ -145,17 +145,7 @@ void hog_apply_fmt_int(struct hog_rc *rc, struct hog_buffer *buf, int64_t data,
 
 size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
                           const uint8_t *input, size_t len,
-                          const struct hog_cmd *cmd, size_t offset) {
-  // look up data type
-  const struct hog_type *t =
-      hog_config_type_lookup(rc->cfg, cmd->type_name, NULL);
-  if (!t) {
-    hog_error("Type '%s' was not found", cmd->type_name);
-    hog_err_set(HOG_ERR_TYPE_NOT_FOUND);
-    hog_err_detail(cmd->type_name, sizeof(char *));
-    return 0;
-  }
-
+                          const struct hog_type *t, size_t offset) {
   size_t size = hog_type_sizeof(t, rc->cfg->arch_size);
   int64_t data = hog_apply_read(rc, input, len, offset, size);
   if (hog_err()) {
@@ -207,8 +197,11 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
           return offset;
         }
         hog_buffer_fill(buf, rc->cfg->array_open, 1);
+        hog_buffer_fill(buf, ' ', 1);
         for (size_t i = 0; i < t->array_cnt; i++) {
-          hog_apply_fmt_type(rc, buf, input, len, cmd, offset);
+          offset += hog_apply_fmt_type(rc, buf, input, len, tn, offset);
+          hog_buffer_fill(buf, rc->cfg->array_sep, 1);
+          hog_buffer_fill(buf, ' ', 1);
         }
         hog_buffer_fill(buf, rc->cfg->array_close, 1);
       }
@@ -217,6 +210,21 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
   }
 
   return offset + size;
+}
+
+size_t hog_apply_fmt_type_cmd(struct hog_rc *rc, struct hog_buffer *buf,
+                              const uint8_t *input, size_t len,
+                              const struct hog_cmd *cmd, size_t offset) {
+  // look up data type
+  const struct hog_type *t =
+      hog_config_type_lookup(rc->cfg, cmd->type_name, NULL);
+  if (!t) {
+    hog_error("Type '%s' was not found", cmd->type_name);
+    hog_err_set(HOG_ERR_TYPE_NOT_FOUND);
+    hog_err_detail(cmd->type_name, sizeof(char *));
+    return 0;
+  }
+  return hog_apply_fmt_type(rc, buf, input, len, t, offset);
 }
 
 size_t hog_apply_fmt_literal(struct hog_rc *rc, struct hog_buffer *buf,
@@ -277,7 +285,7 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
     rc->scope_level--;
     break;
   case HOG_CMD_FMT_TYPE:
-    move = hog_apply_fmt_type(rc, buf, input, len, cmd, offset);
+    move = hog_apply_fmt_type_cmd(rc, buf, input, len, cmd, offset);
     break;
   case HOG_CMD_FMT_STATIC_LITERAL:
   case HOG_CMD_FMT_LITERAL:

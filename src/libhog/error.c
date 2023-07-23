@@ -13,24 +13,39 @@ const char *hog_err_to_str(enum hog_error self) {
     return "OK";
   case HOG_ERRNO:
     return "ERRNO";
+  case HOG_ERR_UNTERMINATED_TOKEN:
+    return "Unterminated token";
+  case HOG_ERR_INI_SECTION_INVAL:
+    return "Ini inval section";
+  case HOG_ERR_INI_BAD_KEY:
+    return "Ini bad key";
+  case HOG_ERR_CMD_INVAL:
+    return "Invalid command";
+  case HOG_ERR_TYPE_NOT_FOUND:
+    return "Type not found";
+  case HOG_ERR_OUT_OF_DATA:
+    return "Out of data";
+  case HOG_ERR_CMD_NOT_FOUND:
+    return "Command not found";
   }
 
   return "Unknown error";
 }
 
-void hog_err_print(FILE *f) {
+enum hog_error hog_err_print(FILE *f) {
   enum hog_error err = hog_err();
   switch (err) {
   case HOG_OK:
     break;
   case HOG_ERRNO:
-    fprintf(f, "%s", strerror(errno)); // NOLINT
+    fprintf(f, "%s\n", strerror(errno)); // NOLINT
     break;
   default:
-    fprintf(f, "%s", hog_err_to_str(err));
+    fprintf(f, "%s\n", hog_err_to_str(err));
   }
 
   hog_err_set(HOG_OK);
+  return err;
 }
 
 void hog_err_set(enum hog_error err) { HOG_ERR = err; }

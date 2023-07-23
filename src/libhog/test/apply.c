@@ -4,6 +4,7 @@
 #include "libhog/error.h"
 #include "libhog/test/test.h"
 #include "libhog/apply.h"
+#include "libhog/types.h"
 #include <cmocka.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -24,8 +25,8 @@
   {                                                                            \
     hog_buffer_clear(&buf);                                                    \
     size_t res = hog_apply_lookup(&rc, &buf, (data), (len), (type), 0);        \
+    assert_false(hog_err_print(stderr));                                       \
     assert_int_equal((new_offset), res);                                       \
-    assert_false(hog_err());                                                   \
     assert_string_equal((expect), (char *)buf.data);                           \
   }
 
@@ -171,6 +172,22 @@ void test_apply_scope(void **state) {
     rc.scope_level = 2;
     const uint8_t data[] = {0x12, 0x34, 0x56, 0x78};
     hog_expect("    void* test_name = 2018915346", "void*", data, 4, 4);
+    hog_teardown();
+  }
+  {
+    hog_setup();
+    hog_rc_name(&rc, "test_name");
+    cfg.arch_size = 4;
+    rc.int_fmt = HOG_FMT_INT_HEX;
+
+    // add a test array type
+    struct hog_type t = hog_type_init(HOG_TYPE_ARRAY, "void_ptr_array", 1);
+    t.array_cnt = 4;
+    hog_config_def_builtin_type(&cfg, "void*[4]", t);
+
+    const uint8_t data[] = {0x12, 0x34, 0x56, 0x78};
+    hog_expect("void_ptr_array test_name = [ 0x12, 0x34, 0x56, 0x78, ]",
+               "void_ptr_array", data, 4, 4);
     hog_teardown();
   }
 }
