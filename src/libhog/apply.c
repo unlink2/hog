@@ -197,6 +197,22 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
     case HOG_TYPE_ENUM:
       // TODO: implement enums
       break;
+    case HOG_TYPE_ARRAY:
+      // special case for an array type
+      // if it is array call apply the type pointed to n times
+      {
+        const struct hog_type *tn = hog_vec_get(&rc->cfg->types, t->ptr_to_idx);
+        if (!tn) {
+          hog_err_set(HOG_ERR_TYPE_NOT_FOUND);
+          return offset;
+        }
+        hog_buffer_fill(buf, rc->cfg->array_open, 1);
+        for (size_t i = 0; i < t->array_cnt; i++) {
+          hog_apply_fmt_type(rc, buf, input, len, cmd, offset);
+        }
+        hog_buffer_fill(buf, rc->cfg->array_close, 1);
+      }
+      break;
     }
   }
 

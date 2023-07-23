@@ -35,20 +35,26 @@ enum hog_types {
   // that can be looked up
   HOG_TYPE_STRUCT,
 
+  // an array will use the array count field
+  HOG_TYPE_ARRAY,
+
   // an enum is a named list of integer assignments
   HOG_TYPE_ENUM,
 };
 
 struct hog_type {
-  // this is the original name of the type
-  // as it was defined
-  // this may be different than the mapped name
-  // this name may be used to look up more complex struct
-  // command sequences
+  // TODO: is this name even useful?
   const char *name;
   enum hog_types type;
+
+  // how many elements the array has
+  // only ise used when the tpye is TYPE_ARRAY
+  size_t array_cnt;
+
   // index into list of all possible
   // types this item points to
+  // if the type is array this pointer
+  // is the concrete data type of the array
   size_t ptr_to_idx;
 };
 
