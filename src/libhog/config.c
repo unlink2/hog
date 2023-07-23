@@ -16,6 +16,14 @@ struct hog_config hog_config_init(void) {
   self.types = hog_vec_init(sizeof(struct hog_type));
   self.types_map = hog_vec_init(sizeof(struct hog_type_map));
 
+  self.indent_char = ' ';
+  self.indent_cnt = 2;
+  self.scope_open = '{';
+  self.scope_close = '}';
+  self.array_open = '[';
+  self.array_close = ']';
+  self.new_line = '\n';
+
   return self;
 }
 

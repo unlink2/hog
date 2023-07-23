@@ -37,6 +37,8 @@ size_t hog_buffer_len(struct hog_buffer *self);
 // termination
 void hog_buffer_null_term(struct hog_buffer *self);
 
+void hog_buffer_fill(struct hog_buffer *self, char c, size_t cnt);
+
 // moves the data owned by the buffer out of the buffer
 // and guarantees to clean up the remaining data the buffer might use
 // using the buffer after this call is ub.

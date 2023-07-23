@@ -7,6 +7,7 @@
 #include "libhog/types.h"
 #include "libhog/vec.h"
 #include "libhog/log.h"
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -249,9 +250,14 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
     hog_buffer_null_term(buf);
     break;
   case HOG_CMD_BEGIN_SCOPE:
+    hog_buffer_fill(buf, rc->cfg->scope_open, 1);
+    hog_buffer_fill(buf, rc->cfg->new_line, 1);
     rc->scope_level++;
     break;
   case HOG_CMD_END_SCOPE:
+    hog_buffer_fill(buf, rc->cfg->new_line, 1);
+    hog_buffer_fill(buf, rc->cfg->scope_close, 1);
+    hog_buffer_fill(buf, rc->cfg->new_line, 1);
     rc->scope_level--;
     break;
   case HOG_CMD_FMT_TYPE:
@@ -274,6 +280,10 @@ size_t hog_apply(struct hog_rc *rc, struct hog_buffer *buf,
                  size_t offset) {
 
   const struct hog_vec *cmds = &rc->cfg->cmds;
+
+  // indent scope
+  size_t indent_cnt = (size_t)rc->cfg->indent_cnt * rc->scope_level;
+  hog_buffer_fill(buf, rc->cfg->indent_char, indent_cnt);
 
   // TODO: surely there is a better way to write this loop,
   // but I literally can't think of one right now...

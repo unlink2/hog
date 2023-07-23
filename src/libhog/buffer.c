@@ -60,6 +60,12 @@ void hog_buffer_null_term(struct hog_buffer *self) {
   *next = '\0';
 }
 
+void hog_buffer_fill(struct hog_buffer *self, char c, size_t cnt) {
+  uint8_t *next = hog_buffer_next(self, cnt);
+  memset(next, c, cnt);
+  hog_buffer_adv(self, cnt);
+}
+
 uint8_t *hog_buffer_move(struct hog_buffer *self) { return self->data; }
 
 uint8_t *hog_buffer_cat(char separator, const char **strings, size_t len) {

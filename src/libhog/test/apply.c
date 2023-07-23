@@ -147,9 +147,9 @@ void test_apply_float(void **state) {
 
     const uint32_t d = 0x4880a008;
     const uint8_t *data = (uint8_t *)&d;
-    hog_expect("f32 test_name = 263424.250000", "f32", data, 4, 4)
+    hog_expect("f32 test_name = 263424.250000", "f32", data, 4, 4);
 
-        hog_teardown();
+    hog_teardown();
   }
   {
     hog_setup();
@@ -157,8 +157,20 @@ void test_apply_float(void **state) {
 
     const uint64_t d = 0x4110140104000180;
     const uint8_t *data = (uint8_t *)&d;
-    hog_expect("f64 test_name = 263424.253906", "f64", data, 8, 8)
+    hog_expect("f64 test_name = 263424.253906", "f64", data, 8, 8);
 
-        hog_teardown();
+    hog_teardown();
+  }
+}
+
+void test_apply_scope(void **state) {
+  {
+    hog_setup();
+    hog_rc_name(&rc, "test_name");
+    cfg.arch_size = 4;
+    rc.scope_level = 2;
+    const uint8_t data[] = {0x12, 0x34, 0x56, 0x78};
+    hog_expect("    void* test_name = 2018915346", "void*", data, 4, 4);
+    hog_teardown();
   }
 }

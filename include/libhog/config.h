@@ -3,6 +3,7 @@
 
 #include "libhog/vec.h"
 #include "libhog/types.h"
+#include <stdint.h>
 
 enum hog_int_fmt {
   HOG_FMT_INT_DEC = 0,
@@ -28,6 +29,14 @@ struct hog_config {
   struct hog_vec cmds;
   // list of key/value map for commands
   struct hog_vec cmds_map;
+
+  int16_t indent_cnt;
+  char indent_char;
+  char scope_open;
+  char scope_close;
+  char array_open;
+  char array_close;
+  char new_line;
 };
 
 struct hog_config hog_config_init(void);

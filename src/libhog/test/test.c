@@ -20,6 +20,7 @@ int main(int arc, char **argv) {
       cmocka_unit_test_setup(test_ini, test_setup),
       cmocka_unit_test_setup(test_apply_int, test_setup),
       cmocka_unit_test_setup(test_apply_float, test_setup),
+      cmocka_unit_test_setup(test_apply_scope, test_setup),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
