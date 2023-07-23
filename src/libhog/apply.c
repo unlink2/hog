@@ -53,9 +53,35 @@ int64_t hog_apply_read(struct hog_rc *rc, const uint8_t *input,
   memcpy(&res, start, read_len);
 
   if (rc->endianess == HOG_ENDIAN_BIG) {
-    res = htobe64(res);
+    switch (read_len) {
+    case 1:
+      break;
+    case 2:
+      res = htobe16(res);
+      break;
+    case 3:
+    case 4:
+      res = htobe32(res);
+      break;
+    default:
+      res = htobe64(res);
+      break;
+    }
   } else {
-    res = htole64(res);
+    switch (read_len) {
+    case 1:
+      break;
+    case 2:
+      res = htole16(res);
+      break;
+    case 3:
+    case 4:
+      res = htole32(res);
+      break;
+    default:
+      res = htole64(res);
+      break;
+    }
   }
 
   return res;
