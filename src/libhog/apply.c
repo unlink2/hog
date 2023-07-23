@@ -16,6 +16,8 @@
 // for systems not using glibc
 #include <endian.h>
 
+#define HOG_BUF_FMT_DEFAULT_LEN 32
+
 struct hog_rc hog_rc_init(const struct hog_config *cfg) {
   struct hog_rc self;
   memset(&self, 0, sizeof(self));
@@ -91,7 +93,7 @@ void hog_apply_fmt_int(struct hog_rc *rc, struct hog_buffer *buf, int64_t data,
                        enum hog_types type) {
 
   size_t written = 0;
-  char *b = (char *)hog_buffer_next(buf, 16);
+  char *b = (char *)hog_buffer_next(buf, HOG_BUF_FMT_DEFAULT_LEN);
 
   switch (rc->int_fmt) {
   case HOG_FMT_INT_DEC:
@@ -177,10 +179,18 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
     case HOG_TYPE_ISIZE:
       hog_apply_fmt_int(rc, buf, data, t->type);
       break;
-    case HOG_TYPE_F32:
-
-    case HOG_TYPE_F64:
-      break;
+    case HOG_TYPE_F32: {
+      char *c = (char *)hog_buffer_next(buf, HOG_BUF_FMT_DEFAULT_LEN);
+      float *d = (float *)&data;
+      size_t written = sprintf(c, "%f", *d);
+      hog_buffer_adv(buf, written);
+    } break;
+    case HOG_TYPE_F64: {
+      char *c = (char *)hog_buffer_next(buf, HOG_BUF_FMT_DEFAULT_LEN);
+      double *d = (double *)&data;
+      size_t written = sprintf(c, "%f", *d);
+      hog_buffer_adv(buf, written);
+    } break;
     case HOG_TYPE_STRUCT:
       // TODO: implement struct
     case HOG_TYPE_ENUM:
