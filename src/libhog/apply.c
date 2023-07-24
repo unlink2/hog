@@ -152,7 +152,8 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
     return 0;
   }
 
-  if (t->ptr_to_idx != HOG_NULL_IDX && t->type != HOG_TYPE_ARRAY) {
+  if (t->ptr_to_idx != HOG_NULL_IDX && t->type != HOG_TYPE_ARRAY &&
+      t->type != HOG_TYPE_STRUCT) {
     hog_apply_fmt_int(rc, buf, data, t->type);
   } else {
     switch (t->type) {
@@ -182,8 +183,15 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
       size_t written = sprintf(c, "%f", *d);
       hog_buffer_adv(buf, written);
     } break;
-    case HOG_TYPE_STRUCT:
-      // TODO: implement struct
+    case HOG_TYPE_STRUCT: {
+      const struct hog_cmd *sc = hog_vec_get(&rc->cfg->cmds, t->struct_cmd_idx);
+      if (!sc) {
+        hog_err_set(HOG_ERR_CMD_NOT_FOUND);
+        return offset;
+      }
+      // look up comands and start over
+      return hog_apply(rc, buf, input, len, sc, offset);
+    }
     case HOG_TYPE_ENUM:
       // TODO: implement enums
       break;
@@ -191,7 +199,8 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
       // special case for an array type
       // if it is array call apply the type pointed to n times
       {
-        const struct hog_type *tn = hog_vec_get(&rc->cfg->types, t->ptr_to_idx);
+        const struct hog_type *tn =
+            hog_vec_get(&rc->cfg->types, t->array_type_idx);
         if (!tn) {
           hog_err_set(HOG_ERR_TYPE_NOT_FOUND);
           return offset;

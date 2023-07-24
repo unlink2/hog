@@ -81,7 +81,7 @@ struct hog_config hog_config_init_builtins(void) {
 struct hog_type_map *hog_config_type_add(struct hog_config *self,
                                          const char *name,
                                          struct hog_type type) {
-  struct hog_type *t = hog_vec_push(&self->types, &type);
+  hog_vec_push(&self->types, &type);
   size_t index = self->types.len - 1;
   struct hog_type_map map = hog_type_map_init(index, name);
 

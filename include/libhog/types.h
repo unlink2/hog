@@ -43,7 +43,6 @@ enum hog_types {
 };
 
 struct hog_type {
-  // TODO: is this name even useful?
   const char *name;
   enum hog_types type;
 
@@ -55,7 +54,12 @@ struct hog_type {
   // types this item points to
   // if the type is array this pointer
   // is the concrete data type of the array
-  size_t ptr_to_idx;
+  // if the type is a struct it points to the command to be executed
+  union {
+    size_t ptr_to_idx;
+    size_t array_type_idx;
+    size_t struct_cmd_idx;
+  };
 };
 
 struct hog_type hog_type_init(enum hog_types type, const char *name,
