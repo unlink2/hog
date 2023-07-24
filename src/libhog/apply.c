@@ -152,7 +152,7 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
     return 0;
   }
 
-  if (t->ptr_to_idx != HOG_NULL_IDX) {
+  if (t->ptr_to_idx != HOG_NULL_IDX && t->type != HOG_TYPE_ARRAY) {
     hog_apply_fmt_int(rc, buf, data, t->type);
   } else {
     switch (t->type) {
@@ -199,13 +199,13 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
         hog_buffer_fill(buf, rc->cfg->array_open, 1);
         hog_buffer_fill(buf, ' ', 1);
         for (size_t i = 0; i < t->array_cnt; i++) {
-          offset += hog_apply_fmt_type(rc, buf, input, len, tn, offset);
+          offset = hog_apply_fmt_type(rc, buf, input, len, tn, offset);
           hog_buffer_fill(buf, rc->cfg->array_sep, 1);
           hog_buffer_fill(buf, ' ', 1);
         }
         hog_buffer_fill(buf, rc->cfg->array_close, 1);
       }
-      break;
+      return offset;
     }
   }
 

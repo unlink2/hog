@@ -181,13 +181,13 @@ void test_apply_scope(void **state) {
     rc.int_fmt = HOG_FMT_INT_HEX;
 
     // add a test array type
-    struct hog_type t = hog_type_init(HOG_TYPE_ARRAY, "void_ptr_array", 1);
+    struct hog_type t = hog_type_init(HOG_TYPE_ARRAY, "u8_array", 2);
     t.array_cnt = 4;
-    hog_config_def_builtin_type(&cfg, "void*[4]", t);
+    hog_config_def_builtin_type(&cfg, "u8_array", t);
 
     const uint8_t data[] = {0x12, 0x34, 0x56, 0x78};
-    hog_expect("void_ptr_array test_name = [ 0x12, 0x34, 0x56, 0x78, ]",
-               "void_ptr_array", data, 4, 4);
+    hog_expect("u8_array test_name = [ 0x12, 0x34, 0x56, 0x78, ]", "u8_array",
+               data, 4, 4);
     hog_teardown();
   }
 }

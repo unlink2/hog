@@ -28,9 +28,9 @@ struct hog_config hog_config_init(void) {
   return self;
 }
 
-void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
-                                enum hog_types type, size_t ptr_idx) {
-  hog_config_type_add(self, name, hog_type_init(type, name, ptr_idx));
+void hog_config_def_builtin_type(struct hog_config *self, const char *name,
+                                 struct hog_type type) {
+  hog_config_type_add(self, name, type);
 
   size_t index = HOG_NULL_IDX;
 
@@ -41,6 +41,11 @@ void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
   hog_config_cmd_add(self, hog_cmd_literal_init(name, index), &index);
 
   hog_config_cmd_add_alias(self, name, index);
+}
+
+void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
+                                enum hog_types type, size_t ptr_idx) {
+  hog_config_def_builtin_type(self, name, hog_type_init(type, name, ptr_idx));
 }
 
 void hog_config_def_builtin(struct hog_config *self, const char *name,
