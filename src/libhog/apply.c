@@ -290,6 +290,15 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
   case HOG_CMD_INVAL:
     hog_err_set(HOG_ERR_CMD_INVAL);
     break;
+  case HOG_CMD_REF_CMD: {
+    // lookup command and apply it
+    const struct hog_cmd *sc = hog_vec_get(&rc->cfg->cmds, cmd->cmd_idx);
+    if (!sc) {
+      hog_err_set(HOG_ERR_CMD_NOT_FOUND);
+      return offset;
+    }
+    move = hog_apply(rc, buf, input, len, sc, offset);
+  } break;
   case HOG_CMD_MOVE_BYTES:
     move += cmd->move_bytes;
     break;
@@ -298,10 +307,6 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
     break;
   case HOG_CMD_END:
     hog_buffer_null_term(buf);
-    break;
-  case HOG_CMD_BEGIN_SCOPE:
-    break;
-  case HOG_CMD_END_SCOPE:
     break;
   case HOG_CMD_FMT_TYPE:
     move = hog_apply_fmt_type_cmd(rc, buf, input, len, cmd, offset);

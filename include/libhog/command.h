@@ -16,9 +16,6 @@ enum hog_cmds {
   // end the current command
   HOG_CMD_END,
 
-  HOG_CMD_BEGIN_SCOPE,
-  HOG_CMD_END_SCOPE,
-
   // formats a type based on its primive
   // and if applicable its current output format setting
   // in hog_rc (e.g. dec, hex, bin or char or integers)
@@ -28,6 +25,9 @@ enum hog_cmds {
   HOG_CMD_FMT_STATIC_LITERAL,
   // reads the current name from hog_rc and outputs it
   HOG_CMD_FMT_NAME,
+
+  // command that references another command
+  HOG_CMD_REF_CMD,
 
   HOG_CMD_MOVE_BYTES,
 
@@ -49,6 +49,8 @@ struct hog_cmd {
     // names are used for lookup of definitions in config
     const char *type_name;
     enum hog_int_fmt int_fmt;
+    // used by HOG_CMD_REF_CMD
+    size_t cmd_idx;
   };
   // next command offset into the initial vec
   // this may be followed safely until the comand type is HOG_CMD_END
