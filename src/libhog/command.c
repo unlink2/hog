@@ -39,6 +39,13 @@ struct hog_cmd hog_cmd_type_init(const size_t type_idx, size_t next) {
   return self;
 }
 
+struct hog_cmd hog_cmd_ref_init(const size_t cmd_idx, size_t next) {
+  struct hog_cmd self = hog_cmd_init(HOG_CMD_REF_CMD, next);
+  self.cmd_idx = cmd_idx;
+
+  return self;
+}
+
 void hog_cmd_free(struct hog_cmd *self) {
   // TODO: free correctly
   switch (self->type) {

@@ -1,5 +1,7 @@
 #include "libhog/config.h"
 #include "libhog/command.h"
+#include "libhog/error.h"
+#include "libhog/log.h"
 #include "libhog/macros.h"
 #include "libhog/types.h"
 #include "libhog/vec.h"
@@ -45,7 +47,30 @@ void hog_config_def_builtin_type(struct hog_config *self, const char *name,
 }
 
 void hog_config_def_struct(struct hog_config *self, const char *name,
-                           const char **cmds) {}
+                           const char **cmds, size_t cmds_len) {
+  struct hog_type t = hog_type_init(HOG_TYPE_STRUCT, name, HOG_NULL_IDX);
+
+  size_t index = HOG_NULL_IDX;
+  for (size_t i = cmds_len - 1; i >= 0; i--) {
+    size_t lookup_index = 0;
+    printf("%d: %s\n", i, cmds[i]);
+    const struct hog_cmd *c =
+        hog_config_cmd_lookup(self, cmds[i], &lookup_index);
+
+    if (!c) {
+      hog_error("Command %s was not found!\n", cmds[i]);
+      hog_err_set(HOG_ERR_CMD_NOT_FOUND);
+      return;
+    }
+
+    struct hog_cmd new_cmd = hog_cmd_ref_init(lookup_index, index);
+    hog_config_cmd_add(self, new_cmd, &index);
+  }
+
+  t.struct_cmd_idx = index;
+
+  hog_config_def_builtin_type(self, name, t);
+}
 
 void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
                                 enum hog_types type, size_t ptr_idx) {
@@ -146,7 +171,7 @@ struct hog_cmd_map *hog_config_cmd_add_alias(struct hog_config *self,
   return hog_vec_push(&self->cmds_map, &m);
 }
 
-const struct hog_cmd *hog_conifg_cmd_lookup(const struct hog_config *self,
+const struct hog_cmd *hog_config_cmd_lookup(const struct hog_config *self,
                                             const char *name, size_t *index) {
   const struct hog_vec *map = &self->cmds_map;
   size_t name_len = strlen(name);
