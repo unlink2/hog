@@ -75,7 +75,7 @@ struct hog_cmd_map *hog_config_cmd_add_alias(struct hog_config *self,
 
 // look up a command. Returns NULL if no corresponding type was found
 const struct hog_cmd *hog_conifg_cmd_lookup(const struct hog_config *self,
-                                            const char *name);
+                                            const char *name, size_t *index);
 
 void hog_config_free(struct hog_config *self);
 

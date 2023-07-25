@@ -139,12 +139,15 @@ struct hog_cmd_map *hog_config_cmd_add_alias(struct hog_config *self,
 }
 
 const struct hog_cmd *hog_conifg_cmd_lookup(const struct hog_config *self,
-                                            const char *name) {
+                                            const char *name, size_t *index) {
   const struct hog_vec *map = &self->cmds_map;
   size_t name_len = strlen(name);
   for (size_t i = 0; i < map->len; i++) {
     struct hog_cmd_map *cm = hog_vec_get(map, i);
     if (strncmp(name, cm->name, name_len) == 0) {
+      if (index) {
+        *index = i;
+      }
       return hog_vec_get(&self->cmds, cm->cmd);
     }
   }

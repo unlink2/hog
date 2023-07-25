@@ -350,7 +350,7 @@ size_t hog_apply(struct hog_rc *rc, struct hog_buffer *buf,
 size_t hog_apply_lookup(struct hog_rc *rc, struct hog_buffer *buf,
                         const uint8_t *input, size_t len, const char *cmd_name,
                         size_t offset) {
-  const struct hog_cmd *cmd = hog_conifg_cmd_lookup(rc->cfg, cmd_name);
+  const struct hog_cmd *cmd = hog_conifg_cmd_lookup(rc->cfg, cmd_name, NULL);
   if (!cmd) {
     hog_err_set(HOG_ERR_CMD_NOT_FOUND);
     hog_err_detail(cmd_name, sizeof(char *));
