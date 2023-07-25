@@ -32,9 +32,9 @@ struct hog_cmd hog_cmd_static_literal_init(const char *literal, size_t next) {
   return self;
 }
 
-struct hog_cmd hog_cmd_type_init(const char *type_name, size_t next) {
+struct hog_cmd hog_cmd_type_init(const size_t type_idx, size_t next) {
   struct hog_cmd self = hog_cmd_init(HOG_CMD_FMT_TYPE, next);
-  self.type_name = strdup(type_name);
+  self.type_idx = type_idx;
 
   return self;
 }
@@ -44,9 +44,6 @@ void hog_cmd_free(struct hog_cmd *self) {
   switch (self->type) {
   case HOG_CMD_FMT_LITERAL:
     free((void *)self->literal);
-    break;
-  case HOG_CMD_FMT_TYPE:
-    free((void *)self->type_name);
     break;
   default:
     break;

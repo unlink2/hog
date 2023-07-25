@@ -46,8 +46,7 @@ struct hog_cmd {
     int move_bytes;
     const char *literal;
 
-    // names are used for lookup of definitions in config
-    const char *type_name;
+    size_t type_idx;
     enum hog_int_fmt int_fmt;
     // used by HOG_CMD_REF_CMD
     size_t cmd_idx;
@@ -62,7 +61,7 @@ struct hog_cmd hog_cmd_init(enum hog_cmds type, size_t next);
 struct hog_cmd hog_cmd_move_init(int move_bytes, size_t next);
 struct hog_cmd hog_cmd_literal_init(const char *literal, size_t next);
 struct hog_cmd hog_cmd_static_literal_init(const char *literal, size_t next);
-struct hog_cmd hog_cmd_type_init(const char *type_name, size_t next);
+struct hog_cmd hog_cmd_type_init(const size_t type_idx, size_t next);
 
 void hog_cmd_free(struct hog_cmd *self);
 

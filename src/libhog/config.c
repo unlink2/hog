@@ -30,11 +30,12 @@ struct hog_config hog_config_init(void) {
 
 void hog_config_def_builtin_type(struct hog_config *self, const char *name,
                                  struct hog_type type) {
-  hog_config_type_add(self, name, type);
+  size_t type_idx = 0;
+  hog_config_type_add(self, name, type, &type_idx);
 
   size_t index = HOG_NULL_IDX;
 
-  hog_config_cmd_add(self, hog_cmd_type_init(name, index), &index);
+  hog_config_cmd_add(self, hog_cmd_type_init(type_idx, index), &index);
   hog_config_cmd_add(self, hog_cmd_static_literal_init(" = ", index), &index);
   hog_config_cmd_add(self, hog_cmd_init(HOG_CMD_FMT_NAME, index), &index);
   hog_config_cmd_add(self, hog_cmd_static_literal_init(" ", index), &index);
@@ -42,6 +43,9 @@ void hog_config_def_builtin_type(struct hog_config *self, const char *name,
 
   hog_config_cmd_add_alias(self, name, index);
 }
+
+void hog_config_def_struct(struct hog_config *self, const char *name,
+                           const char **cmds) {}
 
 void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,
                                 enum hog_types type, size_t ptr_idx) {
@@ -79,11 +83,15 @@ struct hog_config hog_config_init_builtins(void) {
 }
 
 struct hog_type_map *hog_config_type_add(struct hog_config *self,
-                                         const char *name,
-                                         struct hog_type type) {
+                                         const char *name, struct hog_type type,
+                                         size_t *type_index) {
   hog_vec_push(&self->types, &type);
   size_t index = self->types.len - 1;
   struct hog_type_map map = hog_type_map_init(index, name);
+
+  if (type_index) {
+    *type_index = index;
+  }
 
   return hog_vec_push(&self->types_map, &map);
 }

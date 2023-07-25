@@ -242,12 +242,9 @@ size_t hog_apply_fmt_type_cmd(struct hog_rc *rc, struct hog_buffer *buf,
                               const uint8_t *input, size_t len,
                               const struct hog_cmd *cmd, size_t offset) {
   // look up data type
-  const struct hog_type *t =
-      hog_config_type_lookup(rc->cfg, cmd->type_name, NULL);
+  const struct hog_type *t = hog_vec_get(&rc->cfg->types, cmd->type_idx);
   if (!t) {
-    hog_error("Type '%s' was not found", cmd->type_name);
-    hog_err_set(HOG_ERR_TYPE_NOT_FOUND);
-    hog_err_detail(cmd->type_name, sizeof(char *));
+    hog_error("Type '%ld' was not found", cmd->type_idx);
     return 0;
   }
   return hog_apply_fmt_type(rc, buf, input, len, t, offset);

@@ -50,11 +50,16 @@ struct hog_config hog_config_init_builtins(void);
 void hog_config_def_builtin_type(struct hog_config *self, const char *name,
                                  struct hog_type type);
 
+// define a struct that references all commands specified in cmds
+// cmds must be NULL terminated
+void hog_config_def_struct(struct hog_config *self, const char *name,
+                           const char **cmds);
+
 // adds a new type and an initial type alias
 // returns the initial alias
 struct hog_type_map *hog_config_type_add(struct hog_config *self,
-                                         const char *name,
-                                         struct hog_type type);
+                                         const char *name, struct hog_type type,
+                                         size_t *type_index);
 
 // creates a new type alias for an existing type name
 struct hog_type_map *hog_config_type_add_alias(struct hog_config *self,
