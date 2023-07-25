@@ -48,7 +48,6 @@ int64_t hog_apply_read(struct hog_rc *rc, const uint8_t *input,
 
   if (start_len < read_len) {
     hog_err_set(HOG_ERR_OUT_OF_DATA);
-    hog_err_detail(&offset, sizeof(offset));
     return 0;
   }
 
@@ -355,7 +354,6 @@ size_t hog_apply_lookup(struct hog_rc *rc, struct hog_buffer *buf,
   if (!cmd) {
     hog_error("Command with index %ld not found!\n", cmd->cmd_idx);
     hog_err_set(HOG_ERR_CMD_NOT_FOUND);
-    hog_err_detail(cmd_name, sizeof(char *));
     return 0;
   }
 
