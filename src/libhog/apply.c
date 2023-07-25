@@ -200,6 +200,7 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
       // look up comands and start over
       const struct hog_cmd *sc = hog_vec_get(&rc->cfg->cmds, t->struct_cmd_idx);
       if (!sc) {
+        hog_error("Command with index %ld not found!\n", t->struct_cmd_idx);
         hog_err_set(HOG_ERR_CMD_NOT_FOUND);
         return offset;
       }
@@ -219,6 +220,7 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
         const struct hog_type *tn =
             hog_vec_get(&rc->cfg->types, t->array_type_idx);
         if (!tn) {
+          hog_error("Type '%ld' was not found", t->array_type_idx);
           hog_err_set(HOG_ERR_TYPE_NOT_FOUND);
           return offset;
         }
@@ -245,6 +247,7 @@ size_t hog_apply_fmt_type_cmd(struct hog_rc *rc, struct hog_buffer *buf,
   const struct hog_type *t = hog_vec_get(&rc->cfg->types, cmd->type_idx);
   if (!t) {
     hog_error("Type '%ld' was not found", cmd->type_idx);
+    hog_err_set(HOG_ERR_TYPE_NOT_FOUND);
     return 0;
   }
   return hog_apply_fmt_type(rc, buf, input, len, t, offset);
@@ -291,6 +294,7 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
     // lookup command and apply it
     const struct hog_cmd *sc = hog_vec_get(&rc->cfg->cmds, cmd->cmd_idx);
     if (!sc) {
+      hog_error("Command with index %ld not found!\n", cmd->cmd_idx);
       hog_err_set(HOG_ERR_CMD_NOT_FOUND);
       return offset;
     }
@@ -349,6 +353,7 @@ size_t hog_apply_lookup(struct hog_rc *rc, struct hog_buffer *buf,
                         size_t offset) {
   const struct hog_cmd *cmd = hog_conifg_cmd_lookup(rc->cfg, cmd_name, NULL);
   if (!cmd) {
+    hog_error("Command with index %ld not found!\n", cmd->cmd_idx);
     hog_err_set(HOG_ERR_CMD_NOT_FOUND);
     hog_err_detail(cmd_name, sizeof(char *));
     return 0;
