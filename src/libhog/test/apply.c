@@ -26,8 +26,8 @@
     hog_buffer_clear(&buf);                                                    \
     size_t res = hog_apply_lookup(&rc, &buf, (data), (len), (type), 0);        \
     assert_false(hog_err_print(stderr));                                       \
-    assert_int_equal((new_offset), res);                                       \
     assert_string_equal((expect), (char *)buf.data);                           \
+    assert_int_equal((new_offset), res);                                       \
   }
 
 void test_apply_int(void **state) {
@@ -201,8 +201,8 @@ void test_apply_struct(void **state) {
     hog_config_def_struct(&cfg, "test_struct", cmds, 3);
 
     const uint8_t data[] = {0x12, 0x34, 0x56, 0x78};
-    hog_expect("u8_array test_name = [ 0x12, 0x34, 0x56, 0x78, ]", "u8_array",
-               data, 4, 4);
+    hog_expect("u8_array test_name = [ 0x12, 0x34, 0x56, 0x78, ]",
+               "test_struct", data, 4, 4);
     hog_teardown();
   }
 }

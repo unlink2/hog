@@ -51,9 +51,10 @@ void hog_config_def_struct(struct hog_config *self, const char *name,
   struct hog_type t = hog_type_init(HOG_TYPE_STRUCT, name, HOG_NULL_IDX);
 
   size_t index = HOG_NULL_IDX;
-  for (size_t i = cmds_len - 1; i >= 0; i--) {
-    size_t lookup_index = 0;
-    printf("%d: %s\n", i, cmds[i]);
+  for (size_t is = cmds_len; is > 0; is--) {
+    size_t i = is - 1;
+
+    size_t lookup_index = HOG_NULL_IDX;
     const struct hog_cmd *c =
         hog_config_cmd_lookup(self, cmds[i], &lookup_index);
 
@@ -62,6 +63,7 @@ void hog_config_def_struct(struct hog_config *self, const char *name,
       hog_err_set(HOG_ERR_CMD_NOT_FOUND);
       return;
     }
+    printf("c->name %s:%d\n", c->literal, lookup_index);
 
     struct hog_cmd new_cmd = hog_cmd_ref_init(lookup_index, index);
     hog_config_cmd_add(self, new_cmd, &index);
@@ -130,7 +132,7 @@ const struct hog_type *hog_config_type_lookup(const struct hog_config *self,
     struct hog_type_map *tm = hog_vec_get(map, i);
     if (strncmp(name, tm->name, name_len) == 0) {
       if (index) {
-        *index = i;
+        *index = tm->type;
       }
       return hog_vec_get(&self->types, tm->type);
     }
@@ -179,7 +181,7 @@ const struct hog_cmd *hog_config_cmd_lookup(const struct hog_config *self,
     struct hog_cmd_map *cm = hog_vec_get(map, i);
     if (strncmp(name, cm->name, name_len) == 0) {
       if (index) {
-        *index = i;
+        *index = cm->cmd;
       }
       return hog_vec_get(&self->cmds, cm->cmd);
     }

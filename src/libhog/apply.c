@@ -151,7 +151,6 @@ void hog_apply_end_scope(struct hog_rc *rc, struct hog_buffer *buf) {
 
 void hog_apply_begin_scope(struct hog_rc *rc, struct hog_buffer *buf) {
   hog_buffer_fill(buf, rc->cfg->scope_open, 1);
-  hog_buffer_fill(buf, rc->cfg->new_line, 1);
   rc->scope_level++;
 }
 
@@ -297,6 +296,7 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
       hog_err_set(HOG_ERR_CMD_NOT_FOUND);
       return offset;
     }
+    hog_buffer_fill(buf, rc->cfg->new_line, 1);
     move = hog_apply(rc, buf, input, len, sc, offset);
   } break;
   case HOG_CMD_MOVE_BYTES:
