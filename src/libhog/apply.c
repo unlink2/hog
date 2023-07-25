@@ -143,6 +143,19 @@ void hog_apply_fmt_int(struct hog_rc *rc, struct hog_buffer *buf, int64_t data,
   hog_buffer_adv(buf, written);
 }
 
+void hog_apply_end_scope(struct hog_rc *rc, struct hog_buffer *buf) {
+  hog_buffer_fill(buf, rc->cfg->new_line, 1);
+  hog_buffer_fill(buf, rc->cfg->scope_close, 1);
+  hog_buffer_fill(buf, rc->cfg->new_line, 1);
+  rc->scope_level--;
+}
+
+void hog_apply_begin_scope(struct hog_rc *rc, struct hog_buffer *buf) {
+  hog_buffer_fill(buf, rc->cfg->scope_open, 1);
+  hog_buffer_fill(buf, rc->cfg->new_line, 1);
+  rc->scope_level++;
+}
+
 size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
                           const uint8_t *input, size_t len,
                           const struct hog_type *t, size_t offset) {
@@ -184,13 +197,17 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
       hog_buffer_adv(buf, written);
     } break;
     case HOG_TYPE_STRUCT: {
+      // look up comands and start over
       const struct hog_cmd *sc = hog_vec_get(&rc->cfg->cmds, t->struct_cmd_idx);
       if (!sc) {
         hog_err_set(HOG_ERR_CMD_NOT_FOUND);
         return offset;
       }
-      // look up comands and start over
-      return hog_apply(rc, buf, input, len, sc, offset);
+      hog_apply_begin_scope(rc, buf);
+      size_t new_offset = hog_apply(rc, buf, input, len, sc, offset);
+      hog_apply_end_scope(rc, buf);
+
+      return new_offset;
     }
     case HOG_TYPE_ENUM:
       // TODO: implement enums
@@ -283,15 +300,8 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
     hog_buffer_null_term(buf);
     break;
   case HOG_CMD_BEGIN_SCOPE:
-    hog_buffer_fill(buf, rc->cfg->scope_open, 1);
-    hog_buffer_fill(buf, rc->cfg->new_line, 1);
-    rc->scope_level++;
     break;
   case HOG_CMD_END_SCOPE:
-    hog_buffer_fill(buf, rc->cfg->new_line, 1);
-    hog_buffer_fill(buf, rc->cfg->scope_close, 1);
-    hog_buffer_fill(buf, rc->cfg->new_line, 1);
-    rc->scope_level--;
     break;
   case HOG_CMD_FMT_TYPE:
     move = hog_apply_fmt_type_cmd(rc, buf, input, len, cmd, offset);
