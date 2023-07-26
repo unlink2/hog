@@ -36,14 +36,22 @@ size_t hog_config_def_builtin_type(struct hog_config *self, const char *name,
   hog_config_type_add(self, name, type, &type_idx);
 
   size_t index = HOG_NULL_IDX;
+  size_t first = HOG_NULL_IDX;
 
-  hog_config_cmd_add(self, hog_cmd_type_init(type_idx, index), &index);
-  hog_config_cmd_add(self, hog_cmd_static_literal_init(" = ", index), &index);
-  hog_config_cmd_add(self, hog_cmd_init(HOG_CMD_FMT_NAME, index), &index);
-  hog_config_cmd_add(self, hog_cmd_static_literal_init(" ", index), &index);
-  hog_config_cmd_add(self, hog_cmd_literal_init(name, index), &index);
+  hog_config_cmd_push(self, hog_cmd_literal_init(name, HOG_NULL_IDX), index,
+                      &index);
+  first = index;
 
-  hog_config_cmd_add_alias(self, name, index);
+  hog_config_cmd_push(self, hog_cmd_static_literal_init(" ", HOG_NULL_IDX),
+                      index, &index);
+  hog_config_cmd_push(self, hog_cmd_init(HOG_CMD_FMT_NAME, HOG_NULL_IDX), index,
+                      &index);
+  hog_config_cmd_push(self, hog_cmd_static_literal_init(" = ", HOG_NULL_IDX),
+                      index, &index);
+  hog_config_cmd_push(self, hog_cmd_type_init(type_idx, HOG_NULL_IDX), index,
+                      &index);
+
+  hog_config_cmd_add_alias(self, name, first);
 
   return type_idx;
 }
@@ -145,6 +153,20 @@ struct hog_cmd *hog_config_cmd_add(struct hog_config *self, struct hog_cmd cmd,
     *index = self->cmds.len - 1;
   }
 
+  return c;
+}
+
+struct hog_cmd *hog_config_cmd_push(struct hog_config *self, struct hog_cmd cmd,
+                                    size_t prev, size_t *index) {
+  struct hog_cmd *c = hog_config_cmd_add(self, cmd, index);
+  if (prev != HOG_NULL_IDX) {
+    struct hog_cmd *prev_cmd = hog_vec_get(&self->cmds, prev);
+    if (!prev_cmd) {
+      hog_err_set(HOG_ERR_CMD_NOT_FOUND);
+      return NULL;
+    }
+    prev_cmd->next = *index;
+  }
   return c;
 }
 

@@ -77,6 +77,12 @@ const struct hog_type *hog_config_type_lookup(const struct hog_config *self,
 // writes the index of the newly added item into *index unless index is NULL
 struct hog_cmd *hog_config_cmd_add(struct hog_config *self, struct hog_cmd cmd,
                                    size_t *index);
+
+// pushes a command to an existing command index by setting up the link to
+// cmd correctly regardless of what next in the passed cmd is
+struct hog_cmd *hog_config_cmd_push(struct hog_config *self, struct hog_cmd cmd,
+                                    size_t prev, size_t *index);
+
 // adds a name to an existing command
 struct hog_cmd_map *hog_config_cmd_add_alias(struct hog_config *self,
                                              const char *name, size_t cmd);
