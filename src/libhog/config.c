@@ -30,8 +30,8 @@ struct hog_config hog_config_init(void) {
   return self;
 }
 
-void hog_config_def_builtin_type(struct hog_config *self, const char *name,
-                                 struct hog_type type) {
+size_t hog_config_def_builtin_type(struct hog_config *self, const char *name,
+                                   struct hog_type type) {
   size_t type_idx = 0;
   hog_config_type_add(self, name, type, &type_idx);
 
@@ -44,34 +44,15 @@ void hog_config_def_builtin_type(struct hog_config *self, const char *name,
   hog_config_cmd_add(self, hog_cmd_literal_init(name, index), &index);
 
   hog_config_cmd_add_alias(self, name, index);
+
+  return type_idx;
 }
 
-void hog_config_def_struct(struct hog_config *self, const char *name,
-                           const char **cmds, size_t cmds_len) {
+size_t hog_config_def_struct(struct hog_config *self, const char *name,
+                             size_t ref_idx) {
   struct hog_type t = hog_type_init(HOG_TYPE_STRUCT, name, HOG_NULL_IDX);
-
-  size_t index = HOG_NULL_IDX;
-  for (size_t is = cmds_len; is > 0; is--) {
-    size_t i = is - 1;
-
-    size_t lookup_index = HOG_NULL_IDX;
-    const struct hog_cmd *c =
-        hog_config_cmd_lookup(self, cmds[i], &lookup_index);
-
-    if (!c) {
-      hog_error("Command %s was not found!\n", cmds[i]);
-      hog_err_set(HOG_ERR_CMD_NOT_FOUND);
-      return;
-    }
-    printf("c->name %s:%d\n", c->literal, lookup_index);
-
-    struct hog_cmd new_cmd = hog_cmd_ref_init(lookup_index, index);
-    hog_config_cmd_add(self, new_cmd, &index);
-  }
-
-  t.struct_cmd_idx = index;
-
-  hog_config_def_builtin_type(self, name, t);
+  t.struct_cmd_idx = ref_idx;
+  return hog_config_def_builtin_type(self, name, t);
 }
 
 void hog_config_def_builtin_ptr(struct hog_config *self, const char *name,

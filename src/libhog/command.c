@@ -26,6 +26,12 @@ struct hog_cmd hog_cmd_literal_init(const char *literal, size_t next) {
   return self;
 }
 
+struct hog_cmd hog_cmd_set_name_init(const char *literal, size_t next) {
+  struct hog_cmd self = hog_cmd_init(HOG_CMD_SET_NAME, next);
+  self.literal = strdup(literal);
+  return self;
+}
+
 struct hog_cmd hog_cmd_static_literal_init(const char *literal, size_t next) {
   struct hog_cmd self = hog_cmd_init(HOG_CMD_FMT_STATIC_LITERAL, next);
   self.literal = literal;
@@ -49,6 +55,7 @@ struct hog_cmd hog_cmd_ref_init(const size_t cmd_idx, size_t next) {
 void hog_cmd_free(struct hog_cmd *self) {
   // TODO: free correctly
   switch (self->type) {
+  case HOG_CMD_SET_NAME:
   case HOG_CMD_FMT_LITERAL:
     free((void *)self->literal);
     break;

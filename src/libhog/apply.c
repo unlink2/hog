@@ -29,17 +29,10 @@ struct hog_rc hog_rc_init(const struct hog_config *cfg) {
 }
 
 void hog_rc_name(struct hog_rc *rc, const char *name) {
-  if (rc->name) {
-    free(rc->name);
-  }
-  rc->name = strdup(name);
+  rc->name = (char *)name;
 }
 
-void hog_rc_free(struct hog_rc *rc) {
-  if (rc->name) {
-    free(rc->name);
-  }
-}
+void hog_rc_free(struct hog_rc *rc) {}
 
 int64_t hog_apply_read(struct hog_rc *rc, const uint8_t *input,
                        size_t input_len, size_t offset, size_t read_len) {
@@ -195,6 +188,11 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
       hog_buffer_adv(buf, written);
     } break;
     case HOG_TYPE_STRUCT: {
+      if (t->struct_cmd_idx == HOG_NULL_IDX) {
+        hog_apply_begin_scope(rc, buf);
+        hog_apply_end_scope(rc, buf);
+        break;
+      }
       // look up comands and start over
       const struct hog_cmd *sc = hog_vec_get(&rc->cfg->cmds, t->struct_cmd_idx);
       if (!sc) {
@@ -205,7 +203,6 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
       hog_apply_begin_scope(rc, buf);
       size_t new_offset = hog_apply(rc, buf, input, len, sc, offset);
       hog_apply_end_scope(rc, buf);
-
       return new_offset;
     }
     case HOG_TYPE_ENUM:
@@ -282,7 +279,6 @@ size_t hog_apply_fmt_name(struct hog_rc *rc, struct hog_buffer *buf) {
 size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
                       const uint8_t *input, size_t len,
                       const struct hog_cmd *cmd, size_t offset) {
-  size_t move = offset;
 
   switch (cmd->type) {
   case HOG_CMD_INVAL:
@@ -297,11 +293,9 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
       return offset;
     }
     hog_buffer_fill(buf, rc->cfg->new_line, 1);
-    move = hog_apply(rc, buf, input, len, sc, offset);
-  } break;
+    return hog_apply(rc, buf, input, len, sc, offset);
   case HOG_CMD_MOVE_BYTES:
-    move += cmd->move_bytes;
-    break;
+    return offset + cmd->move_bytes;
   case HOG_CMD_BEGIN:
     hog_buffer_clear(buf);
     break;
@@ -309,18 +303,20 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
     hog_buffer_null_term(buf);
     break;
   case HOG_CMD_FMT_TYPE:
-    move = hog_apply_fmt_type_cmd(rc, buf, input, len, cmd, offset);
-    break;
+    return hog_apply_fmt_type_cmd(rc, buf, input, len, cmd, offset);
   case HOG_CMD_FMT_STATIC_LITERAL:
   case HOG_CMD_FMT_LITERAL:
-    move = hog_apply_fmt_literal(rc, buf, input, len, cmd, offset);
+    hog_apply_fmt_literal(rc, buf, input, len, cmd, offset);
     break;
   case HOG_CMD_FMT_NAME:
-    move = hog_apply_fmt_name(rc, buf);
+    hog_apply_fmt_name(rc, buf);
+    break;
+  case HOG_CMD_SET_NAME:
+    hog_rc_name(rc, cmd->literal);
     break;
   }
-
-  return move;
+  }
+  return offset;
 }
 
 size_t hog_apply(struct hog_rc *rc, struct hog_buffer *buf,
@@ -336,8 +332,7 @@ size_t hog_apply(struct hog_rc *rc, struct hog_buffer *buf,
   // TODO: surely there is a better way to write this loop,
   // but I literally can't think of one right now...
   while (true) {
-    offset += hog_apply_next(rc, buf, input, len, cmd, offset);
-
+    offset = hog_apply_next(rc, buf, input, len, cmd, offset);
     if (cmd->next == HOG_NULL_IDX || hog_err()) {
       break;
     }

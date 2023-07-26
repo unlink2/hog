@@ -46,13 +46,17 @@ struct hog_config hog_config_init(void);
 struct hog_config hog_config_init_builtins(void);
 
 // FIXME: raise errors when add or add_alias attempts to add an existing name
+// TODO: Add command_add alternative that allows adding in forward order but
+// still handles setting up the linked list correctly
 
-void hog_config_def_builtin_type(struct hog_config *self, const char *name,
-                                 struct hog_type type);
+// returns type index
+size_t hog_config_def_builtin_type(struct hog_config *self, const char *name,
+                                   struct hog_type type);
 
 // define a struct that references all commands specified in cmds
-void hog_config_def_struct(struct hog_config *self, const char *name,
-                           const char **cmds, size_t cmds_len);
+// returns type index
+size_t hog_config_def_struct(struct hog_config *self, const char *name,
+                             size_t ref_idx);
 
 // adds a new type and an initial type alias
 // returns the initial alias

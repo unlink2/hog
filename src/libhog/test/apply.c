@@ -1,5 +1,7 @@
 #include "libhog/buffer.h"
+#include "libhog/command.h"
 #include "libhog/config.h"
+#include "libhog/macros.h"
 #include "libhog/test/ini.h"
 #include "libhog/error.h"
 #include "libhog/test/test.h"
@@ -197,11 +199,33 @@ void test_apply_struct(void **state) {
     hog_setup();
     hog_rc_name(&rc, "test_name");
 
-    const char *cmds[] = {"u8", "u16", "u8"};
-    hog_config_def_struct(&cfg, "test_struct", cmds, 3);
+    rc.int_fmt = HOG_FMT_INT_HEX;
+
+    // look up types we want to ref in struct
+    size_t u8idx = 0;
+    hog_config_cmd_lookup(&cfg, "u8", &u8idx);
+    size_t u16idx = 0;
+    hog_config_cmd_lookup(&cfg, "u16", &u16idx);
+
+    // compose commands for struct
+    size_t next_idx = HOG_NULL_IDX;
+    hog_config_cmd_add(&cfg, hog_cmd_ref_init(u8idx, next_idx), &next_idx);
+    hog_config_cmd_add(&cfg, hog_cmd_set_name_init("u8_2", next_idx),
+                       &next_idx);
+
+    hog_config_cmd_add(&cfg, hog_cmd_ref_init(u16idx, next_idx), &next_idx);
+    hog_config_cmd_add(&cfg, hog_cmd_set_name_init("u16_1", next_idx),
+                       &next_idx);
+
+    hog_config_cmd_add(&cfg, hog_cmd_ref_init(u8idx, next_idx), &next_idx);
+    hog_config_cmd_add(&cfg, hog_cmd_set_name_init("u8_1", next_idx),
+                       &next_idx);
+    hog_config_def_struct(&cfg, "test_struct", next_idx);
 
     const uint8_t data[] = {0x12, 0x34, 0x56, 0x78};
-    hog_expect("u8_array test_name = [ 0x12, 0x34, 0x56, 0x78, ]",
+    hog_expect("test_struct test_name = {  \n  u8 u8_1 = 0x12\n  u16 u16_1 = "
+               "0x5634\n  u8 "
+               "u8_2 = 0x78\n}\n",
                "test_struct", data, 4, 4);
     hog_teardown();
   }

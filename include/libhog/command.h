@@ -26,6 +26,9 @@ enum hog_cmds {
   // reads the current name from hog_rc and outputs it
   HOG_CMD_FMT_NAME,
 
+  // set current name in hog_rc
+  HOG_CMD_SET_NAME,
+
   // command that references another command
   HOG_CMD_REF_CMD,
 
@@ -60,6 +63,7 @@ struct hog_cmd hog_cmd_init(enum hog_cmds type, size_t next);
 
 struct hog_cmd hog_cmd_move_init(int move_bytes, size_t next);
 struct hog_cmd hog_cmd_literal_init(const char *literal, size_t next);
+struct hog_cmd hog_cmd_set_name_init(const char *literal, size_t next);
 struct hog_cmd hog_cmd_static_literal_init(const char *literal, size_t next);
 struct hog_cmd hog_cmd_type_init(const size_t type_idx, size_t next);
 struct hog_cmd hog_cmd_ref_init(const size_t cmd_idx, size_t next);
