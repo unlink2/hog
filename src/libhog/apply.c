@@ -314,6 +314,9 @@ size_t hog_apply_next(struct hog_rc *rc, struct hog_buffer *buf,
   case HOG_CMD_SET_NAME:
     hog_rc_name(rc, cmd->literal);
     break;
+  case HOG_CMD_SET_INT_FMT:
+    rc->int_fmt = cmd->int_fmt;
+    break;
   }
   }
   return offset;
