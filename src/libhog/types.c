@@ -52,6 +52,7 @@ size_t hog_type_sizeof(const struct hog_type *self, size_t arch_len) {
   case HOG_TYPE_F64:
     return 8;
   case HOG_TYPE_ARRAY:
+  case HOG_TYPE_STR:
     // arrays do not have a size on their own, but their content does
     return 0;
   default:

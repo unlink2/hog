@@ -205,6 +205,18 @@ size_t hog_apply_fmt_type(struct hog_rc *rc, struct hog_buffer *buf,
       hog_apply_end_scope(rc, buf);
       return new_offset;
     }
+    case HOG_TYPE_STR: {
+      hog_buffer_fill(buf, '"', 1);
+      // loop until \0
+      do {
+        int64_t data = hog_apply_read(rc, input, len, offset, 1);
+        if (data) {
+          hog_buffer_fill(buf, (char)data, 1);
+        }
+      } while (data);
+      hog_buffer_fill(buf, '"', 1);
+      break;
+    }
     case HOG_TYPE_ENUM:
       // TODO: implement enums
       break;

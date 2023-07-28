@@ -31,6 +31,10 @@ enum hog_types {
 
   // "complex" types
 
+  // '\0' terminated array of bytes
+  // forces output to CHAR
+  HOG_TYPE_STR,
+
   // a struct is simply another named collection of commands
   // that can be looked up
   HOG_TYPE_STRUCT,
