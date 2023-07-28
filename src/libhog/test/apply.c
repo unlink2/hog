@@ -192,6 +192,15 @@ void test_apply_scope(void **state) {
                data, 4, 4);
     hog_teardown();
   }
+  {
+    hog_setup();
+    hog_rc_name(&rc, "test_name");
+
+    // add a test array type
+    const uint8_t data[] = "Hello";
+    hog_expect("char* test_name = \"Hello\"", "char*", data, 6, 6);
+    hog_teardown();
+  }
 }
 
 void test_apply_struct(void **state) {

@@ -94,6 +94,7 @@ struct hog_config hog_config_init_builtins(void) {
 
   hog_config_def_builtin(&self, "f32", HOG_TYPE_F32);
   hog_config_def_builtin(&self, "f64", HOG_TYPE_F64);
+  hog_config_def_builtin(&self, "char*", HOG_TYPE_STR);
 
   return self;
 }
