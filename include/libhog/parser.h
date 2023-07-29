@@ -37,6 +37,9 @@
 //   #intfmt bin: Will cause integers to be formatted as binary numbers
 //   #skip <number>: Will instruct the program to skip the next n bytes
 
+// returns the next token or NULL if no token is available
+const char *hog_parse_next_tok(const char *input);
+
 // parses a single member of a struct
 size_t hog_parse_member(struct hog_config *cfg, const char *input);
 
