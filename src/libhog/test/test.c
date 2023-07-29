@@ -5,6 +5,7 @@
 #include "libhog/test/buffer.h"
 #include "libhog/test/ini.h"
 #include "libhog/test/apply.h"
+#include "libhog/test/parser.h"
 
 static int test_setup(void **state) {
   hog_err_set(HOG_OK);
@@ -22,6 +23,7 @@ int main(int arc, char **argv) {
       cmocka_unit_test_setup(test_apply_float, test_setup),
       cmocka_unit_test_setup(test_apply_scope, test_setup),
       cmocka_unit_test_setup(test_apply_struct, test_setup),
+      cmocka_unit_test_setup(test_parser, test_setup),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);
