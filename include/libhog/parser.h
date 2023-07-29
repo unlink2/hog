@@ -42,7 +42,10 @@ enum hog_tok_type {
   HOG_TOK_SEMICOLON,
   HOG_TOK_STRUCT,
   HOG_TOK_IDENT,
-  HOG_TOK_DIRECTIVE
+  HOG_TOK_DIRECTIVE,
+
+  HOG_TOK_BLK_OPEN,
+  HOG_TOK_BLK_CLOSE
 };
 
 struct hog_tok {
