@@ -16,8 +16,8 @@
 //  this syntax even if they are unused as of now
 //
 // Identifiers:
-//  Identifiers are alphanumeric + _
-//  they always start with a letter
+//  Identifiers are alphanumeric and may contain underscores
+//  they always start with a letter or an undersocre
 //
 // Built-in data types:
 //   u8, u16, u32, u64
@@ -37,8 +37,22 @@
 //   #intfmt bin: Will cause integers to be formatted as binary numbers
 //   #skip <number>: Will instruct the program to skip the next n bytes
 
+enum hog_tok_type {
+  HOG_TOK_UNKNOWN,
+  HOG_TOK_SEMICOLON,
+  HOG_TOK_STRUCT,
+  HOG_TOK_IDENT,
+  HOG_TOK_DIRECTIVE
+};
+
+struct hog_tok {
+  enum hog_tok_type type;
+  const char *raw;
+  size_t raw_len;
+};
+
 // returns the next token or NULL if no token is available
-const char *hog_parse_next_tok(const char *input);
+size_t hog_parse_next_tok(const char *input);
 
 // parses a single member of a struct
 size_t hog_parse_member(struct hog_config *cfg, const char *input);

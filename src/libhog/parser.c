@@ -3,7 +3,10 @@
 
 bool hog_parse_is_term(char c) { return c == '\0' || isspace(c) || c == ';'; }
 
-const char *hog_parse_next(const char *input, size_t *len) {
+struct hog_tok hog_parse_next(const char *input, size_t *len) {
+  struct hog_tok res;
+  res.type = HOG_TOK_UNKNOWN;
+
   // trim before parsing
   while (isspace(*input) && *input != '\0') {
     input++;
@@ -15,9 +18,10 @@ const char *hog_parse_next(const char *input, size_t *len) {
     input++;
   }
 
-  *len = input - start;
+  res.raw = start;
+  res.raw_len = input - start;
 
-  return start;
+  return res;
 }
 
 size_t hog_parse_struct(struct hog_config *cfg, const char *input) { return 0; }
