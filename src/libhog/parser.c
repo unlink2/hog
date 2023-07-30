@@ -188,13 +188,17 @@ blk_close:
 size_t hog_parse_member(struct hog_config *cfg, const char *input,
                         const char **next) {
 
-  struct hog_tok ident = hog_parse_expect(input, HOG_TOK_IDENT);
-
+  struct hog_tok type_ident = hog_parse_expect(input, HOG_TOK_IDENT);
   if (hog_err()) {
     return HOG_NULL_IDX;
   }
+  input = hog_tok_next(type_ident);
 
-  input = hog_tok_next(ident);
+  struct hog_tok name_ident = hog_parse_expect(input, HOG_TOK_IDENT);
+  if (hog_err()) {
+    return HOG_NULL_IDX;
+  }
+  input = hog_tok_next(type_ident);
 
   if (next) {
     *next = input;
