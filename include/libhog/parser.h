@@ -62,12 +62,16 @@ struct hog_tok hog_parse_next(const char *input);
 size_t hog_parse_next_tok(const char *input);
 
 // parses a single member of a struct
-size_t hog_parse_member(struct hog_config *cfg, const char *input);
+// returns next input ptr in *next
+size_t hog_parse_member(struct hog_config *cfg, const char *input,
+                        const char **next);
 
 // takes a textual representation of a struct
 // and converts it to commands that are added to
 // the command list.
 // returns the index of the newly created command list
-size_t hog_parse_struct(struct hog_config *cfg, const char *input);
+// returns next input ptr in *next
+size_t hog_parse_struct(struct hog_config *cfg, const char *input,
+                        const char **next);
 
 #endif

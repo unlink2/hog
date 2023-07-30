@@ -118,7 +118,7 @@ struct hog_tok hog_parse_next(const char *input) {
 struct hog_tok hog_parse_expect(const char *input, enum hog_tok_type expected) {
   const struct hog_tok tok = hog_parse_next(input);
   if (tok.type != expected) {
-    hog_err_fset(HOG_ERR_PARSER, "Expected type '%s' but got '%s:%.*s'",
+    hog_err_fset(HOG_ERR_PARSER, "Expected token '%s' but got '%s:%.*s'",
                  hog_parse_tok_to_str(expected), hog_parse_tok_to_str(tok.type),
                  (int)tok.raw_len, tok.raw);
   }
@@ -126,6 +126,51 @@ struct hog_tok hog_parse_expect(const char *input, enum hog_tok_type expected) {
   return tok;
 }
 
-size_t hog_parse_struct(struct hog_config *cfg, const char *input) { return 0; }
+const char *hog_parse_expect_consume(const char *input,
+                                     enum hog_tok_type expected) {
+  const struct hog_tok t = hog_parse_expect(input, expected);
+  if (hog_err()) {
+    return NULL;
+  }
+  return t.raw + t.raw_len;
+}
 
-size_t hog_parse_member(struct hog_config *cfg, const char *input) { return 0; }
+size_t hog_parse_struct(struct hog_config *cfg, const char *input,
+                        const char **next) {
+  input = hog_parse_expect_consume(input, HOG_TOK_STRUCT);
+  if (!input) {
+    return 0;
+  }
+
+  const struct hog_tok ident = hog_parse_expect(input, HOG_TOK_IDENT);
+  if (hog_err()) {
+    return 0;
+  }
+  input = ident.raw + ident.raw_len;
+
+  input = hog_parse_expect_consume(input, HOG_TOK_BLK_OPEN);
+  if (!input) {
+    return 0;
+  }
+
+  // parse until end of struct
+  struct hog_tok current_tok;
+  do {
+  } while (current_tok.type != HOG_TOK_BLK_CLOSE);
+  input = hog_parse_expect_consume(input, HOG_TOK_SEMICOLON);
+
+  if (next) {
+    *next = input;
+  }
+
+  return 0;
+}
+
+size_t hog_parse_member(struct hog_config *cfg, const char *input,
+                        const char **next) {
+
+  if (next) {
+    *next = input;
+  }
+  return 0;
+}

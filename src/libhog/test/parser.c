@@ -15,6 +15,7 @@
 void test_parser(void **state) {
   hog_expect("", "[END] ''");
   hog_expect("struct", "[STRUCT] 'struct'");
+  hog_expect("   \t   struct", "[STRUCT] 'struct'");
   hog_expect("name123", "[IDENT] 'name123'");
   hog_expect("_name123", "[IDENT] '_name123'");
   hog_expect("1_name123", "[UNKNOWN] '1_name123'");
