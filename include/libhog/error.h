@@ -24,6 +24,9 @@ enum hog_error {
   // size_t offset as error detail
   HOG_ERR_OUT_OF_DATA,
   HOG_ERR_CMD_NOT_FOUND,
+
+  HOG_ERR_PARSER,
+
   // errno is stored in err_detail
   HOG_ERRNO
 };
@@ -32,6 +35,12 @@ const char *hog_err_to_str(enum hog_error self);
 
 #define hog_errno()                                                            \
   { hog_err_set(HOG_ERRNO); }
+
+#define hog_err_fset(err, msg, ...)                                            \
+  {                                                                            \
+    hog_err_set((err));                                                        \
+    hog_error((msg), __VA_ARGS__);                                             \
+  }
 
 // sets err to a value
 // to indicate a failure in a call

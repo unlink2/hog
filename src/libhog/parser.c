@@ -1,4 +1,6 @@
 #include "libhog/parser.h"
+#include "libhog/error.h"
+#include "libhog/log.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,12 +10,9 @@ bool hog_parse_is_term(char c) {
          c == '#';
 }
 
-size_t hog_parse_tok_sprintf(char *s, const struct hog_tok tok) {
-  size_t idx = 0;
-
+const char *hog_parse_tok_to_str(const enum hog_tok_type type) {
   const char *tok_name = NULL;
-
-  switch (tok.type) {
+  switch (type) {
   case HOG_TOK_UNKNOWN:
     tok_name = "UNKNOWN";
     break;
@@ -39,6 +38,14 @@ size_t hog_parse_tok_sprintf(char *s, const struct hog_tok tok) {
     tok_name = "BLK_CLOSE";
     break;
   }
+
+  return tok_name;
+}
+
+size_t hog_parse_tok_sprintf(char *s, const struct hog_tok tok) {
+  size_t idx = 0;
+
+  const char *tok_name = hog_parse_tok_to_str(tok.type);
 
   idx = sprintf(s, "[%s] '%.*s'", tok_name, (int)tok.raw_len, tok.raw);
 
@@ -106,6 +113,17 @@ struct hog_tok hog_parse_next(const char *input) {
   res.raw_len = len;
 
   return res;
+}
+
+struct hog_tok hog_parse_expect(const char *input, enum hog_tok_type expected) {
+  const struct hog_tok tok = hog_parse_next(input);
+  if (tok.type != expected) {
+    hog_err_fset(HOG_ERR_PARSER, "Expected type '%s' but got '%s:%.*s'",
+                 hog_parse_tok_to_str(expected), hog_parse_tok_to_str(tok.type),
+                 (int)tok.raw_len, tok.raw);
+  }
+
+  return tok;
 }
 
 size_t hog_parse_struct(struct hog_config *cfg, const char *input) { return 0; }
