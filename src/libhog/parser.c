@@ -132,7 +132,7 @@ const char *hog_parse_expect_consume(const char *input,
   if (hog_err()) {
     return NULL;
   }
-  return t.raw + t.raw_len;
+  return hog_tok_next(t);
 }
 
 size_t hog_parse_struct(struct hog_config *cfg, const char *input,
@@ -144,13 +144,13 @@ size_t hog_parse_struct(struct hog_config *cfg, const char *input,
 
   const struct hog_tok ident = hog_parse_expect(input, HOG_TOK_IDENT);
   if (hog_err()) {
-    return 0;
+    return HOG_NULL_IDX;
   }
-  input = ident.raw + ident.raw_len;
+  input = hog_tok_next(ident);
 
   input = hog_parse_expect_consume(input, HOG_TOK_BLK_OPEN);
   if (!input) {
-    return 0;
+    return HOG_NULL_IDX;
   }
 
   // parse until end of struct
@@ -172,7 +172,7 @@ size_t hog_parse_struct(struct hog_config *cfg, const char *input,
     default:
       // error out
       hog_err_fset(HOG_ERR_PARSER, "Unexpected token");
-      return 0;
+      return HOG_NULL_IDX;
     }
   }
 blk_close:
@@ -182,14 +182,22 @@ blk_close:
     *next = input;
   }
 
-  return 0;
+  return HOG_NULL_IDX;
 }
 
 size_t hog_parse_member(struct hog_config *cfg, const char *input,
                         const char **next) {
 
+  struct hog_tok ident = hog_parse_expect(input, HOG_TOK_IDENT);
+
+  if (hog_err()) {
+    return HOG_NULL_IDX;
+  }
+
+  input = hog_tok_next(ident);
+
   if (next) {
     *next = input;
   }
-  return 0;
+  return HOG_NULL_IDX;
 }

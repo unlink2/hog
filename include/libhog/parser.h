@@ -55,6 +55,8 @@ struct hog_tok {
   size_t raw_len;
 };
 
+#define hog_tok_next(tok) ((tok).raw + (tok).raw_len)
+
 size_t hog_parse_tok_sprintf(char *s, const struct hog_tok tok);
 struct hog_tok hog_parse_next(const char *input);
 
