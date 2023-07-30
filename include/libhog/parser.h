@@ -39,6 +39,7 @@
 
 enum hog_tok_type {
   HOG_TOK_UNKNOWN,
+  HOG_TOK_END,
   HOG_TOK_SEMICOLON,
   HOG_TOK_STRUCT,
   HOG_TOK_IDENT,
@@ -53,6 +54,9 @@ struct hog_tok {
   const char *raw;
   size_t raw_len;
 };
+
+size_t hog_parse_tok_sprintf(char *s, const struct hog_tok tok);
+struct hog_tok hog_parse_next(const char *input);
 
 // returns the next token or NULL if no token is available
 size_t hog_parse_next_tok(const char *input);
