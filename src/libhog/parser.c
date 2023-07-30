@@ -154,9 +154,28 @@ size_t hog_parse_struct(struct hog_config *cfg, const char *input,
   }
 
   // parse until end of struct
-  struct hog_tok current_tok;
-  do {
-  } while (current_tok.type != HOG_TOK_BLK_CLOSE);
+  while (1) {
+    struct hog_tok current_tok = hog_parse_next(input);
+
+    size_t next_cmd = HOG_NULL_IDX;
+    switch (current_tok.type) {
+    case HOG_TOK_IDENT:
+      // parse member
+      next_cmd = hog_parse_member(cfg, input, &input);
+      break;
+    case HOG_TOK_DIRECTIVE:
+      // TODO: parse directive
+      break;
+    case HOG_TOK_BLK_CLOSE:
+      // skip out of loop
+      goto blk_close;
+    default:
+      // error out
+      hog_err_fset(HOG_ERR_PARSER, "Unexpected token");
+      return 0;
+    }
+  }
+blk_close:
   input = hog_parse_expect_consume(input, HOG_TOK_SEMICOLON);
 
   if (next) {

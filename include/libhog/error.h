@@ -36,10 +36,10 @@ const char *hog_err_to_str(enum hog_error self);
 #define hog_errno()                                                            \
   { hog_err_set(HOG_ERRNO); }
 
-#define hog_err_fset(err, msg, ...)                                            \
+#define hog_err_fset(err, ...)                                                 \
   {                                                                            \
     hog_err_set((err));                                                        \
-    hog_error((msg), __VA_ARGS__);                                             \
+    hog_error(__VA_ARGS__);                                                    \
   }
 
 // sets err to a value
