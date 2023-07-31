@@ -15,17 +15,11 @@
 // Some may or may not require special error info
 enum hog_error {
   HOG_OK = 0,
-  HOG_ERR_UNTERMINATED_TOKEN,
-  HOG_ERR_INI_SECTION_INVAL,
-  HOG_ERR_INI_BAD_KEY,
-  HOG_ERR_CMD_INVAL,
 
-  HOG_ERR_TYPE_NOT_FOUND,
-  // size_t offset as error detail
-  HOG_ERR_OUT_OF_DATA,
-  HOG_ERR_CMD_NOT_FOUND,
+  HOG_ERR_VM_STACK_UNDERFLOW,
+  HOG_ERR_VM_STACK_OVERFLOW,
 
-  HOG_ERR_PARSER,
+  HOG_ERR_VM_INVAL_OP,
 
   // errno is stored in err_detail
   HOG_ERRNO
