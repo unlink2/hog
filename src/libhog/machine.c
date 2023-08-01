@@ -128,7 +128,7 @@ size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer) {
   return 1;
 }
 
-int8_t hog_vm_tick(struct hog_vm *self, struct hog_config *cfg) {
+int8_t hog_vm_tick(struct hog_vm *self) {
   int8_t op = 0;
   self->ip += hog_vm_read1(self, self->ip, &op);
 
