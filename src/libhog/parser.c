@@ -1,22 +1,36 @@
 #include "libhog/parser.h"
 #include <ctype.h>
 
-const char *hog_tok_next(const char *input, size_t *len) {
-  while (*input != '\0' && isspace(*input)) {
-    input++;
+size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
+  char c = '\0';
+  size_t written = 0;
+  size_t read_res = 0;
+  buffer[0] = '\0';
+  while ((read_res = read(fd, &c, 1)) != -1) {
+    if (read_res == -1) {
+      return read_res;
+    }
+
+    // exit conditions
+    if ((isspace(c) && written != 0) || c == '\0' || written >= len - 1) {
+      break;
+    }
+
+    if (!isspace(c)) {
+      buffer[written] = c;
+      written++;
+    }
   }
 
-  const char *start = input;
+  buffer[written] = '\0';
 
-  *len = 0;
-  if (*start == '\0') {
-    return NULL;
-  }
+  return written;
+}
 
-  while (*input != '\0' && !isspace(*input)) {
-    input++;
-    *len += 1;
-  }
+void hog_parse(struct hog_vm *vm) {
+  const size_t buffer_len = 128;
+  const char buffer[buffer_len];
 
-  return start;
+  char op = '\0';
+  vm->read(vm->stdin, &op, 1);
 }

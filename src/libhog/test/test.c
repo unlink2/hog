@@ -13,6 +13,7 @@ int main(int arc, char **argv) {
   const struct CMUnitTest tests[] = {
       cmocka_unit_test_setup(test_machine, test_setup),
       cmocka_unit_test_setup(test_parser, test_setup),
+      cmocka_unit_test_setup(test_tok, test_setup),
   };
 
   return cmocka_run_group_tests(tests, NULL, NULL);

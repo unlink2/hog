@@ -2,7 +2,13 @@
 #define PARSER_H_
 
 #include <stddef.h>
+#include "libhog/machine.h"
 
-const char *hog_tok_next(const char *input, size_t *len);
+size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len);
+
+// reads from vm->stdin until \n is read
+// will compile the input into bytecode and place it into the vm
+// by pushing the result to the vm's stack
+void hog_parse(struct hog_vm *vm);
 
 #endif
