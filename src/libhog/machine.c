@@ -141,7 +141,7 @@ int8_t hog_vm_tick(struct hog_vm *self, struct hog_config *cfg) {
   case HOG_OP_PUTS: {
     char c = '\0';
     while ((c = (char)hog_vm_read1(self, self->ip, (int8_t *)&c))) {
-      fputc(c, self->stdout);
+      self->write(self->stdout, (int8_t *)&c, 1);
     }
   } break;
   default:

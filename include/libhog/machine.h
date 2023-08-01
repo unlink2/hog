@@ -2,6 +2,7 @@
 #define MACHINE_H_
 
 #include "libhog/config.h"
+#include "libhog/io.h"
 #include "libhog/macros.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -118,11 +119,14 @@ struct hog_vm {
   size_t mem_size;
 
   // user facing input
-  FILE *stdin;
+  int stdin;
   // user facing output
-  FILE *stdout;
+  int stdout;
   // fin is the target file buffer
-  FILE *fin;
+  int fin;
+
+  hog_read read;
+  hog_write write;
 
   // registers
   size_t sp; // stack pointer
