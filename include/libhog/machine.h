@@ -38,12 +38,17 @@ enum hog_ops {
 
   // equal comparison
   HOG_OP_EQ,
+
   // not equal comparison
   HOG_OP_NE,
+
   // greater
   HOG_OP_GT,
+  HOG_OP_GT_EQ,
+
   // less
   HOG_OP_LT,
+  HOG_OP_LT_EQ,
 
   // pops one value off the stack and nots it
   HOG_OP_BIT_NOT,
@@ -79,11 +84,26 @@ enum hog_ops {
   // char literal
   HOG_OP_FMT_CHAR,
 
-  // signed decimal integer output
-  HOG_OP_FMT_DEC_I8,
-  HOG_OP_FMT_DEC_I16,
-  HOG_OP_FMT_DEC_I32,
-  HOG_OP_FMT_DEC_I64,
+  // set integer format
+  HOG_OP_INT_FMT_DEC,
+  HOG_OP_INT_FMT_HEX,
+  HOG_OP_INT_FMT_BIN,
+
+  // output signed integer
+  HOG_OP_FMT_I8,
+  HOG_OP_FMT_I16,
+  HOG_OP_FMT_I32,
+  HOG_OP_FMT_I64,
+
+  // output unsigned integer
+  HOG_OP_FMT_U8,
+  HOG_OP_FMT_U16,
+  HOG_OP_FMT_U32,
+  HOG_OP_FMT_U64,
+
+  // output float
+  HOG_OP_FMT_F32,
+  HOG_OP_FMT_F64
 };
 
 struct hog_vm {
