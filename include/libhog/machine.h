@@ -16,6 +16,10 @@ enum hog_ops {
   // pops 8 bits off the stack and uses it as exit code
   HOG_OP_HLT,
 
+  // waits for input from program
+  // input and parses the next instruction
+  HOG_OP_PARSE,
+
   // reads from ip until \0 is read
   HOG_OP_PUTS,
 
