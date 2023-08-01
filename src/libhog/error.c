@@ -11,20 +11,6 @@ const char *hog_err_to_str(enum hog_error self) {
     return "OK";
   case HOG_ERRNO:
     return "ERRNO";
-  case HOG_ERR_UNTERMINATED_TOKEN:
-    return "Unterminated token";
-  case HOG_ERR_INI_SECTION_INVAL:
-    return "Ini inval section";
-  case HOG_ERR_INI_BAD_KEY:
-    return "Ini bad key";
-  case HOG_ERR_CMD_INVAL:
-    return "Invalid command";
-  case HOG_ERR_TYPE_NOT_FOUND:
-    return "Type not found";
-  case HOG_ERR_OUT_OF_DATA:
-    return "Out of data";
-  case HOG_ERR_CMD_NOT_FOUND:
-    return "Command not found";
   }
 
   return "Unknown error";
