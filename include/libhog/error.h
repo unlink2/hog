@@ -23,6 +23,8 @@ enum hog_error {
   HOG_ERR_VM_MEM_RESIZE_FAILED,
   HOG_ERR_VM_MEM_OOB,
 
+  HOG_ERR_PARSE_UNKNOWN_OP,
+
   // errno is stored in err_detail
   HOG_ERRNO
 };

@@ -1,4 +1,7 @@
 #include "libhog/parser.h"
+#include "libhog/error.h"
+#include "libhog/log.h"
+#include "libhog/machine.h"
 #include <ctype.h>
 
 size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
@@ -12,7 +15,8 @@ size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
     }
 
     // exit conditions
-    if ((isspace(c) && written != 0) || c == '\0' || written >= len - 1) {
+    if ((isspace(c) && written != 0) || c == '\0' || c == '\n' ||
+        written >= len - 1) {
       break;
     }
 
@@ -33,4 +37,22 @@ void hog_parse(struct hog_vm *vm) {
 
   char op = '\0';
   vm->read(vm->stdin, &op, 1);
+
+  switch (op) {
+  case ':':
+    // TODO: define word at current sp address
+    break;
+  case 'e':
+    // halt command
+    hog_vm_push(vm, HOG_OP_HLT);
+    break;
+  case 'P':
+    break;
+  case '?':
+    // TODO: output syntax help
+    break;
+  default:
+    hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Op '%c' was not found!\n", op);
+    break;
+  }
 }
