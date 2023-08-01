@@ -1,6 +1,7 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 enum hog_int_fmt {
@@ -16,16 +17,7 @@ enum hog_endianess {
 };
 
 struct hog_config {
-  int arch_size;
-
-  int16_t indent_cnt;
-  char indent_char;
-  char scope_open;
-  char scope_close;
-  char array_open;
-  char array_close;
-  char array_sep;
-  char new_line;
+  size_t mem_size;
 };
 
 struct hog_config hog_config_init(void);

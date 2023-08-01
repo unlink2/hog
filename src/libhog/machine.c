@@ -1,22 +1,25 @@
 #include "libhog/machine.h"
 #include "libhog/error.h"
 #include "libhog/log.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-struct hog_vm hog_vm_init(size_t stack_size) {
-  size_t total_size = stack_size * sizeof(int8_t);
+struct hog_vm hog_vm_init(struct hog_config *cfg) {
+  size_t total_size = cfg->mem_size * sizeof(int8_t);
 
   struct hog_vm self;
   memset(&self, 0, sizeof(self));
   self.mem = malloc(total_size);
   memset(self.mem, 0, total_size);
-  self.mem_size = stack_size;
+  self.mem_size = cfg->mem_size;
   self.sp = 0;
   self.ip = 0;
 
   return self;
 }
+
+bool hog_vm_is_in_bounds(size_t max_len, size_t i) { return i <= max_len; }
 
 int8_t hog_vm_pop(struct hog_vm *self) {
   size_t next_sp = 0;
@@ -62,24 +65,85 @@ int8_t hog_vm_push(struct hog_vm *self, int8_t data) {
   return data;
 }
 
-size_t hog_vm_read(struct hog_vm *self, int8_t *buffer, size_t len) {}
+size_t hog_vm_readn(struct hog_vm *self, size_t src, int8_t *buffer,
+                    size_t len) {
+  size_t i = 0;
+  for (; i < len; i++) {
+    size_t offset = src + i;
+    if (!hog_vm_is_in_bounds(self->mem_size, offset)) {
+      hog_err_fset(HOG_ERR_VM_MEM_OOB,
+                   "Read at %lx is out of bounds! Max mem size is %lx\n",
+                   offset, self->mem_size);
+      return i;
+    }
+    buffer[i] = self->mem[offset];
+  }
 
-size_t hog_vm_write(struct hog_vm *self, size_t dst, int8_t *buffer,
-                    size_t len) {}
+  return i;
+}
+
+size_t hog_vm_read1(struct hog_vm *self, size_t src, int8_t *buffer) {
+  size_t i = 0;
+  size_t offset = src + i;
+  if (!hog_vm_is_in_bounds(self->mem_size, offset)) {
+    hog_err_fset(HOG_ERR_VM_MEM_OOB,
+                 "Read at %lx is out of bounds! Max mem size is %lx\n", offset,
+                 self->mem_size);
+    return 0;
+  }
+  buffer[i] = self->mem[offset];
+
+  return 1;
+}
+
+size_t hog_vm_writen(struct hog_vm *self, size_t dst, const int8_t *buffer,
+                     size_t len) {
+  size_t i = 0;
+
+  for (; i < len; i++) {
+    size_t offset = dst + i;
+    if (!hog_vm_is_in_bounds(self->mem_size, offset)) {
+      hog_err_fset(HOG_ERR_VM_MEM_OOB,
+                   "Write at %lx is out of bounds! Max mem size is %lx\n",
+                   offset, self->mem_size);
+      return i;
+    }
+    self->mem[offset] = buffer[i];
+  }
+
+  return i;
+}
+
+size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer) {
+  size_t i = 0;
+  size_t offset = dst + i;
+  if (!hog_vm_is_in_bounds(self->mem_size, offset)) {
+    hog_err_fset(HOG_ERR_VM_MEM_OOB,
+                 "Write at %lx is out of bounds! Max mem size is %lx\n", offset,
+                 self->mem_size);
+    return 0;
+  }
+  self->mem[offset] = buffer[i];
+
+  return 1;
+}
 
 int8_t hog_vm_tick(struct hog_vm *self, struct hog_config *cfg) {
   int8_t op = 0;
-  hog_vm_read(self, &op, sizeof(op));
+  self->ip += hog_vm_read1(self, self->ip, &op);
 
   switch ((enum hog_ops)op) {
-  HOG_OP_NOP:
+  case HOG_OP_NOP:
     break;
-  HOG_OP_HLT:
+  case HOG_OP_HLT:
     self->hlt = true;
     break;
-  HOG_OP_PUTS:
-
-    break;
+  case HOG_OP_PUTS: {
+    char c = '\0';
+    while ((c = (char)hog_vm_read1(self, self->ip, (int8_t *)&c))) {
+      fputc(c, self->stdout);
+    }
+  } break;
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation: %d\n", op);
     break;

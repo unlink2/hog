@@ -5,8 +5,11 @@
 #include "libhog/macros.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define HOG_VM_DEFAULT_MEM_SIZE 1024
+
+#define HOG_VM_PARSE_DEF_KEYWORD ".def"
 
 enum hog_ops {
   // no operation
@@ -114,6 +117,13 @@ struct hog_vm {
   int8_t *mem;
   size_t mem_size;
 
+  // user facing input
+  FILE *stdin;
+  // user facing output
+  FILE *stdout;
+  // fin is the target file buffer
+  FILE *fin;
+
   // registers
   size_t sp; // stack pointer
   size_t ip; // instruction pointer
@@ -121,7 +131,7 @@ struct hog_vm {
   bool hlt;
 };
 
-struct hog_vm hog_vm_init(size_t stack_size);
+struct hog_vm hog_vm_init(struct hog_config *cfg);
 
 // pop a value from the stack
 int8_t hog_vm_pop(struct hog_vm *self);
@@ -130,11 +140,14 @@ int8_t hog_vm_pop(struct hog_vm *self);
 int8_t hog_vm_push(struct hog_vm *self, int8_t data);
 
 // reads len into buffer
-size_t hog_vm_read(struct hog_vm *self, int8_t *buffer, size_t len);
+size_t hog_vm_readn(struct hog_vm *self, size_t src, int8_t *buffer,
+                    size_t len);
+size_t hog_vm_read1(struct hog_vm *self, size_t src, int8_t *buffer);
 
 // writes buffer of len to mem
-size_t hog_vm_write(struct hog_vm *self, size_t dst, int8_t *buffer,
-                    size_t len);
+size_t hog_vm_writen(struct hog_vm *self, size_t dst, const int8_t *buffer,
+                     size_t len);
+size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer);
 
 // interpret the current value at ip as an instruction and execute it
 // this will move ip to a new value and change the vm's state

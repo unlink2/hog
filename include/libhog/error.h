@@ -21,6 +21,7 @@ enum hog_error {
 
   HOG_ERR_VM_INVAL_OP,
   HOG_ERR_VM_MEM_RESIZE_FAILED,
+  HOG_ERR_VM_MEM_OOB,
 
   // errno is stored in err_detail
   HOG_ERRNO
