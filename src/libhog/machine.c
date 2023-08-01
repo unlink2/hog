@@ -1,7 +1,6 @@
 #include "libhog/machine.h"
 #include "libhog/error.h"
 #include "libhog/log.h"
-#include "libhog/macros.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -13,6 +12,8 @@ struct hog_vm hog_vm_init(size_t stack_size) {
   self.mem = malloc(total_size);
   memset(self.mem, 0, total_size);
   self.mem_size = stack_size;
+  self.sp = 0;
+  self.ip = 0;
 
   return self;
 }

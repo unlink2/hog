@@ -2,8 +2,6 @@
 #include "libhog/error.h"
 #include "libhog/log.h"
 #include "libhog/macros.h"
-#include "libhog/types.h"
-#include "libhog/vec.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -23,7 +21,4 @@ struct hog_config hog_config_init(void) {
   return self;
 }
 
-void hog_config_free(struct hog_config *self) {
-  hog_type_vec_free(&self->types);
-  hog_type_map_vec_free(&self->types_map);
-}
+void hog_config_free(struct hog_config *self) {}
