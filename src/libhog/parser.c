@@ -51,6 +51,11 @@ size_t hog_parse_len_op(struct hog_vm *vm) {
   return 0;
 }
 
+int64_t hog_parse_number(struct hog_vm *vm) {}
+
+// parse a word and push its address
+size_t hog_parse_word(struct hog_vm *vm) {}
+
 void hog_parse(struct hog_vm *vm) {
   // save original sp so we can revert in case of error
   size_t start_sp = vm->sp;
@@ -84,32 +89,35 @@ void hog_parse(struct hog_vm *vm) {
     // ouput a string
     {
       hog_vm_push(vm, HOG_OP_PUTS);
-      // has to start with "
-      char c = '\0';
-      vm->read(vm->stdin, &c, 1);
-      if (c != '"') {
-        hog_err_fset(HOG_ERR_PARSE_EXPECTED_STRING, "String expected");
-        goto error;
-      }
-
-      char prev = c;
-      while ((vm->read(vm->stdin, &c, 1) != -1) && c != '\0' &&
-             (c != '"' && prev != '\\')) {
-        // handle escaping
-        if (prev == '\\' || c != '\\') {
-          hog_vm_push(vm, c);
-        }
-
-        prev = c;
-      }
-
-      // has to end with "
-      if (c != '"') {
-        hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_STRING, "Unterminated string");
-        goto error;
-      }
+      hog_vm_push(vm, hog_parse_word(vm));
     }
     break;
+  case '"': {
+    // has to start with "
+    char c = '\0';
+    vm->read(vm->stdin, &c, 1);
+    if (c != '"') {
+      hog_err_fset(HOG_ERR_PARSE_EXPECTED_STRING, "String expected");
+      goto error;
+    }
+
+    char prev = c;
+    while ((vm->read(vm->stdin, &c, 1) != -1) && c != '\0' &&
+           (c != '"' && prev != '\\')) {
+      // handle escaping
+      if (prev == '\\' || c != '\\') {
+        hog_vm_push(vm, c);
+      }
+
+      prev = c;
+    }
+
+    // has to end with "
+    if (c != '"') {
+      hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_STRING, "Unterminated string");
+      goto error;
+    }
+  } break;
   case '?':
     // TODO: output syntax help
     break;
