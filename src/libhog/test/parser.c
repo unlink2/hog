@@ -108,7 +108,17 @@ void test_parser(void **state) {
   {
     const double expected = 3.1415F;
 
-    setup("pl3.1415");
+    setup("pd3.1415");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    const float expected = 3.1415F;
+
+    setup("pf3.1415");
     hog_parse(&vm);
     assert_false(hog_err());
     assert_memory_equal(&expected, vm.mem, sizeof(expected));
