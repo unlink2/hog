@@ -16,5 +16,3 @@ struct hog_config hog_config_init(void) {
 
   return self;
 }
-
-void hog_config_free(struct hog_config *self) {}

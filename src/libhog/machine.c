@@ -6,16 +6,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct hog_vm hog_vm_init(struct hog_config *cfg) {
-  size_t total_size = cfg->mem_size * sizeof(int8_t);
+struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
+                          FILE *fin) {
+  size_t total_size = mem_size * sizeof(int8_t);
 
   struct hog_vm self;
   memset(&self, 0, sizeof(self));
   self.mem = malloc(total_size);
   memset(self.mem, 0, total_size);
-  self.mem_size = cfg->mem_size;
+  self.mem_size = mem_size;
   self.sp = 0;
   self.ip = 0;
+
+  self.stdin = stdin;
+  self.stdout = stdout;
+  self.fin = fin;
 
   return self;
 }
@@ -31,8 +36,9 @@ int8_t hog_vm_pop1(struct hog_vm *self) {
     next_sp = self->sp - 1;
   }
 
+  int8_t val = self->mem[self->sp];
   self->sp = next_sp;
-  return self->mem[next_sp];
+  return val;
 }
 
 size_t hog_vm_popn(struct hog_vm *self, void *data, size_t len) {
@@ -74,7 +80,7 @@ int8_t hog_vm_push1(struct hog_vm *self, int8_t data) {
 
   next_sp = self->sp + 1;
 
-  self->mem[next_sp] = data;
+  self->mem[self->sp] = data;
   self->sp = next_sp;
 
   return data;

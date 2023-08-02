@@ -143,7 +143,8 @@ struct hog_vm {
   bool hlt;
 };
 
-struct hog_vm hog_vm_init(struct hog_config *cfg);
+struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
+                          FILE *fin);
 
 // pop a value from the stack
 int8_t hog_vm_pop1(struct hog_vm *self);

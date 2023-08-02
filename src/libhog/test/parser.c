@@ -1,4 +1,5 @@
 #include "libhog/parser.h"
+#include "libhog/error.h"
 #include "libhog/test/test.h"
 #include <cmocka.h>
 #include <stdlib.h>
@@ -34,4 +35,33 @@ void test_tok(void **state) {
   fclose(f);
 }
 
-void test_parser(void **state) {}
+#define setup(usr_input)                                                       \
+  struct hog_vm vm = hog_vm_init(100, tmpfile(), tmpfile(), tmpfile());        \
+  fputs(usr_input, vm.stdin);                                                  \
+  rewind(vm.stdin);
+
+#define teardown()                                                             \
+  fclose(vm.stdin);                                                            \
+  fclose(vm.stdout);                                                           \
+  fclose(vm.fin);                                                              \
+  hog_vm_free(&vm);
+
+void test_parser(void **state) {
+  {
+    setup("\"\\\"Test String\\\"\"");
+
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_string_equal("\"Test String\"", vm.mem);
+
+    teardown();
+  }
+  {
+    setup("\"\\\"Test\\\"");
+
+    hog_parse(&vm);
+    assert_int_equal(HOG_ERR_PARSE_UNTERMINATED_STRING, hog_err());
+
+    teardown();
+  }
+}

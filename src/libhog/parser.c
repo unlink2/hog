@@ -94,26 +94,21 @@ void hog_parse(struct hog_vm *vm) {
     break;
   case '"': {
     // has to start with "
-    int c = fgetc(vm->stdin);
-    if (c != '"') {
-      hog_err_fset(HOG_ERR_PARSE_EXPECTED_STRING, "String expected");
-      goto error;
-    }
-
-    int prev = c;
-    while ((c = fgetc(vm->stdin)) != -1 && c != '\0' &&
-           (c != '"' && prev != '\\')) {
+    int c = op;
+    while ((c = fgetc(vm->stdin)) != -1 && c != '\0' && c != '"') {
       // handle escaping
-      if (prev == '\\' || c != '\\') {
-        hog_vm_push1(vm, (char)c);
+      if (c == '\\') {
+        c = fgetc(vm->stdin);
+        if (c == -1) {
+          break;
+        }
       }
-
-      prev = c;
+      hog_vm_push1(vm, (char)c);
     }
 
     // has to end with "
     if (c != '"') {
-      hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_STRING, "Unterminated string");
+      hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_STRING, "Unterminated string\n");
       goto error;
     }
   } break;
