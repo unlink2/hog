@@ -32,6 +32,15 @@ enum hog_ops {
   // reads the next 8 bits to allow duping multiple values at a time
   HOG_OP_DUP,
 
+  // integers
+  HOG_OP_T8,
+  HOG_OP_T16,
+  HOG_OP_T32,
+  HOG_OP_T64,
+
+  HOG_OP_TF, // float
+  HOG_OP_TD, // double
+
   // pops 2 values off the stack, apply operation
   // and push result
   HOG_OP_ADD,
@@ -81,21 +90,11 @@ enum hog_ops {
   // Input commands
   // reads n bits from the input stream and
   // pushes them to the stack
-  HOG_OP_READ8,
-  HOG_OP_READ16,
-  HOG_OP_READ32,
-  HOG_OP_READ64,
+  HOG_OP_READ,
 
   // push and pop
-  HOG_OP_PUSH8,
-  HOG_OP_PUSH16,
-  HOG_OP_PUSH32,
-  HOG_OP_PUSH64,
-
-  HOG_OP_POP8,
-  HOG_OP_POP16,
-  HOG_OP_POP32,
-  HOG_OP_POP64,
+  HOG_OP_PUSH,
+  HOG_OP_POP,
 
   // output commands
   // pops n bits off the stack and outputs them
@@ -109,16 +108,10 @@ enum hog_ops {
   HOG_OP_INT_FMT_BIN,
 
   // output signed integer
-  HOG_OP_FMT_I8,
-  HOG_OP_FMT_I16,
-  HOG_OP_FMT_I32,
-  HOG_OP_FMT_I64,
+  HOG_OP_FMT_I,
 
   // output unsigned integer
-  HOG_OP_FMT_U8,
-  HOG_OP_FMT_U16,
-  HOG_OP_FMT_U32,
-  HOG_OP_FMT_U64,
+  HOG_OP_FMT_U,
 
   // output float
   HOG_OP_FMT_F32,
@@ -128,6 +121,11 @@ enum hog_ops {
 struct hog_vm {
   int8_t *mem;
   size_t mem_size;
+
+  enum hog_ops opt;
+
+  // used for parser tmp value
+  enum hog_ops opt_parser;
 
   // user facing input
   FILE *stdin;
@@ -145,6 +143,8 @@ struct hog_vm {
 
 struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
                           FILE *fin);
+
+size_t hog_vm_opt_len(enum hog_ops op);
 
 // pop a value from the stack
 int8_t hog_vm_pop1(struct hog_vm *self);

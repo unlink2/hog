@@ -18,11 +18,34 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
   self.sp = 0;
   self.ip = 0;
 
+  self.opt = HOG_OP_T8;
+  self.opt_parser = HOG_OP_T8;
+
   self.stdin = stdin;
   self.stdout = stdout;
   self.fin = fin;
 
   return self;
+}
+
+size_t hog_vm_opt_len(enum hog_ops op) {
+  switch (op) {
+  case HOG_OP_T8:
+    return 1;
+  case HOG_OP_T16:
+    return 2;
+  case HOG_OP_TF:
+  case HOG_OP_T32:
+    return 4;
+  case HOG_OP_TD:
+  case HOG_OP_T64:
+    return 8;
+  default:
+    // should never be called with any other value!
+    abort();
+  }
+
+  return 0;
 }
 
 bool hog_vm_is_in_bounds(size_t max_len, size_t i) { return i <= max_len; }

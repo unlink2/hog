@@ -31,34 +31,6 @@ size_t hog_tok_next(FILE *f, char *buffer, size_t len) {
   return written;
 }
 
-size_t hog_parse_len_op(struct hog_vm *vm, char *len_op) {
-  int op = '\0';
-  op = fgetc(vm->stdin);
-
-  if (len_op) {
-    *len_op = (char)op;
-  }
-
-  switch (op) {
-  case 'l':
-  case 'd':
-    return 8;
-  case 'i':
-  case 'f':
-    return 4;
-  case 's':
-    return 2;
-  case 'b':
-    return 1;
-  default:
-    hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Length-Op '%c' was not found!\n",
-                 op);
-    break;
-  }
-
-  return 0;
-}
-
 int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
   const size_t buffer_len = 128;
   char buffer[buffer_len];
@@ -101,7 +73,12 @@ int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
 // parse a word and push its address
 size_t hog_parse_word(struct hog_vm *vm) {}
 
-void hog_parse(struct hog_vm *vm) {
+void hog_parse_all(struct hog_vm *vm) {
+  while (hog_parse(vm) != -1 && !hog_err()) {
+  }
+}
+
+int hog_parse(struct hog_vm *vm) {
   // save original sp so we can revert in case of error
   size_t start_sp = vm->sp;
 
@@ -114,48 +91,71 @@ void hog_parse(struct hog_vm *vm) {
   case ';':
     hog_vm_push1(vm, HOG_OP_RET);
     break;
+  case 'b':
+    hog_vm_push1(vm, HOG_OP_T8);
+    vm->opt_parser = HOG_OP_T8;
+    break;
+  case 's':
+    hog_vm_push1(vm, HOG_OP_T16);
+    vm->opt_parser = HOG_OP_T16;
+    break;
+  case 'i':
+    hog_vm_push1(vm, HOG_OP_T32);
+    vm->opt_parser = HOG_OP_T32;
+    break;
+  case 'l':
+    hog_vm_push1(vm, HOG_OP_T64);
+    vm->opt_parser = HOG_OP_T64;
+    break;
+  case 'f':
+    hog_vm_push1(vm, HOG_OP_TF);
+    vm->opt_parser = HOG_OP_TF;
+    break;
+  case 'd':
+    hog_vm_push1(vm, HOG_OP_TD);
+    vm->opt_parser = HOG_OP_TD;
+    break;
   case 'e':
     // halt command
     hog_vm_push1(vm, HOG_OP_HLT);
     break;
   case 'p': {
-    char len_op = '\0';
-    size_t len = hog_parse_len_op(vm, &len_op);
+    size_t len = hog_vm_opt_len(vm->opt_parser);
     if (hog_err()) {
       goto error;
     }
     int64_t num = hog_parse_number(vm, len);
 
-    switch (len_op) {
-    case 'b': {
-      hog_vm_push1(vm, HOG_OP_PUSH8);
+    switch (vm->opt_parser) {
+    case HOG_OP_T8: {
+      hog_vm_push1(vm, HOG_OP_PUSH);
       int8_t n = (int8_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
-    case 's': {
-      hog_vm_push1(vm, HOG_OP_PUSH16);
+    case HOG_OP_T16: {
+      hog_vm_push1(vm, HOG_OP_PUSH);
       int16_t n = (int16_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
-    case 'i': {
-      hog_vm_push1(vm, HOG_OP_PUSH32);
+    case HOG_OP_T32: {
+      hog_vm_push1(vm, HOG_OP_PUSH);
       int32_t n = (int32_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
-    case 'l': {
-      hog_vm_push1(vm, HOG_OP_PUSH64);
+    case HOG_OP_T64: {
+      hog_vm_push1(vm, HOG_OP_PUSH);
       int64_t n = (int64_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
-    case 'f': {
-      hog_vm_push1(vm, HOG_OP_PUSH32);
+    case HOG_OP_TF: {
+      hog_vm_push1(vm, HOG_OP_PUSH);
       double n = 0;
       memcpy(&n, &num, sizeof(n));
       float nf = (float)n;
       hog_vm_pushn(vm, &nf, len);
     } break;
-    case 'd': {
-      hog_vm_push1(vm, HOG_OP_PUSH64);
+    case HOG_OP_TD: {
+      hog_vm_push1(vm, HOG_OP_PUSH);
       double n = 0;
       memcpy(&n, &num, sizeof(n));
       hog_vm_pushn(vm, &n, len);
@@ -166,30 +166,8 @@ void hog_parse(struct hog_vm *vm) {
     }
   } break;
   case 'P': {
-    char len_op = '\0';
-    size_t len = hog_parse_len_op(vm, &len_op);
-    if (hog_err()) {
-      goto error;
-    }
-    switch (len) {
-    case 1:
-      hog_vm_push1(vm, HOG_OP_POP8);
-      break;
-    case 2:
-      hog_vm_push1(vm, HOG_OP_POP16);
-      break;
-    case 4:
-      hog_vm_push1(vm, HOG_OP_POP32);
-      break;
-    case 8:
-      hog_vm_push1(vm, HOG_OP_POP64);
-      break;
-    default:
-      // not possible!
-      abort();
-    }
   } break;
-  case 's':
+  case '.':
     // ouput a string
     {
       hog_vm_push1(vm, HOG_OP_PUTS);
@@ -220,12 +198,15 @@ void hog_parse(struct hog_vm *vm) {
   case '?':
     // TODO: output syntax help
     break;
+  case -1:
+    break;
   default:
     hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Op '%c' was not found!\n", op);
     goto error;
   }
 
-  return;
+  return op;
 error:
   vm->sp = start_sp;
+  return 0;
 }

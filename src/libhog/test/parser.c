@@ -68,93 +68,100 @@ void test_parser(void **state) {
   {
     const int8_t expected = 123;
 
-    setup("pb123");
-    hog_parse(&vm);
+    setup("bp123");
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH8, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_T8, *vm.mem);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     const int16_t expected = 12345;
 
-    setup("ps12345");
-    hog_parse(&vm);
+    setup("sp12345");
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH16, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_T16, *vm.mem);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     const int32_t expected = 1234567;
 
-    setup("pi1234567");
-    hog_parse(&vm);
+    setup("ip1234567");
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH32, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_T32, *vm.mem);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     const int64_t expected = 1234567;
 
-    setup("pl1234567");
-    hog_parse(&vm);
+    setup("lp1234567");
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH64, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_T64, *vm.mem);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     const double expected = 3.1415F;
 
-    setup("pd3.1415");
-    hog_parse(&vm);
+    setup("dp3.1415");
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH64, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_TD, *vm.mem);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     const float expected = 3.1415F;
 
-    setup("pf3.1415");
-    hog_parse(&vm);
+    setup("fp3.1415");
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH32, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_TF, *vm.mem);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     const char expected = 'c';
 
-    setup("pb'c'");
+    setup("bp'c'");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH8, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_T8, *vm.mem + 1);
+    assert_int_equal(HOG_OP_PUSH, *vm.mem + 1);
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     const char expected = '\\';
 
-    setup("pb'\\\\'");
+    setup("bp'\\\\'");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH8, *vm.mem);
-    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH, *vm.mem + 1);
+    assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
-    setup("pb'c");
+    setup("bp'c");
     hog_parse(&vm);
     assert_int_equal(HOG_ERR_PARSE_UNTERMINATED_CHAR, hog_err());
 
