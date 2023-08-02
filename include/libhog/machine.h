@@ -149,10 +149,16 @@ struct hog_vm {
 struct hog_vm hog_vm_init(struct hog_config *cfg);
 
 // pop a value from the stack
-int8_t hog_vm_pop(struct hog_vm *self);
+int8_t hog_vm_pop1(struct hog_vm *self);
+
+// pop n bytes from the stack into *data
+size_t hog_vm_popn(struct hog_vm *self, void *data, size_t len);
 
 // push a new value to the stack
-int8_t hog_vm_push(struct hog_vm *self, int8_t data);
+int8_t hog_vm_push1(struct hog_vm *self, int8_t data);
+
+// push n bytes to the stack
+size_t hog_vm_pushn(struct hog_vm *self, void *data, size_t len);
 
 // reads len into buffer
 size_t hog_vm_readn(struct hog_vm *self, size_t src, int8_t *buffer,

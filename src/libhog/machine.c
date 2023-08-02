@@ -1,6 +1,7 @@
 #include "libhog/machine.h"
 #include "libhog/error.h"
 #include "libhog/log.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +22,7 @@ struct hog_vm hog_vm_init(struct hog_config *cfg) {
 
 bool hog_vm_is_in_bounds(size_t max_len, size_t i) { return i <= max_len; }
 
-int8_t hog_vm_pop(struct hog_vm *self) {
+int8_t hog_vm_pop1(struct hog_vm *self) {
   size_t next_sp = 0;
   if (self->sp == 0) {
     hog_err_fset(HOG_ERR_VM_STACK_UNDERFLOW, "[vm] Stack underflow!\n");
@@ -32,6 +33,20 @@ int8_t hog_vm_pop(struct hog_vm *self) {
 
   self->sp = next_sp;
   return self->mem[next_sp];
+}
+
+size_t hog_vm_popn(struct hog_vm *self, void *data, size_t len) {
+  size_t total = 0;
+  int8_t *d = data;
+
+  for (size_t i = len; i > 0; i--, total++) {
+    d[i - 1] = hog_vm_pop1(self);
+    if (hog_err()) {
+      break;
+    }
+  }
+
+  return total;
 }
 
 void hog_vm_resize(struct hog_vm *self, size_t target) {
@@ -46,7 +61,7 @@ void hog_vm_resize(struct hog_vm *self, size_t target) {
   }
 }
 
-int8_t hog_vm_push(struct hog_vm *self, int8_t data) {
+int8_t hog_vm_push1(struct hog_vm *self, int8_t data) {
   size_t next_sp = 0;
   if (self->sp >= self->mem_size) {
     size_t prev = self->mem_size;
@@ -63,6 +78,20 @@ int8_t hog_vm_push(struct hog_vm *self, int8_t data) {
   self->sp = next_sp;
 
   return data;
+}
+
+size_t hog_vm_pushn(struct hog_vm *self, void *data, size_t len) {
+  size_t i = 0;
+  int8_t *d = data;
+
+  for (; i < len; i++) {
+    hog_vm_push1(self, d[i]);
+    if (hog_err()) {
+      break;
+    }
+  }
+
+  return i;
 }
 
 size_t hog_vm_readn(struct hog_vm *self, size_t src, int8_t *buffer,

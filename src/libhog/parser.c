@@ -71,11 +71,11 @@ void hog_parse(struct hog_vm *vm) {
     // TODO: define word at current sp address
     break;
   case ';':
-    hog_vm_push(vm, HOG_OP_RET);
+    hog_vm_push1(vm, HOG_OP_RET);
     break;
   case 'e':
     // halt command
-    hog_vm_push(vm, HOG_OP_HLT);
+    hog_vm_push1(vm, HOG_OP_HLT);
     break;
   case 'p':
     // TODO: push
@@ -88,8 +88,8 @@ void hog_parse(struct hog_vm *vm) {
   case 's':
     // ouput a string
     {
-      hog_vm_push(vm, HOG_OP_PUTS);
-      hog_vm_push(vm, hog_parse_word(vm));
+      hog_vm_push1(vm, HOG_OP_PUTS);
+      hog_vm_push1(vm, hog_parse_word(vm));
     }
     break;
   case '"': {
@@ -106,7 +106,7 @@ void hog_parse(struct hog_vm *vm) {
            (c != '"' && prev != '\\')) {
       // handle escaping
       if (prev == '\\' || c != '\\') {
-        hog_vm_push(vm, c);
+        hog_vm_push1(vm, c);
       }
 
       prev = c;
