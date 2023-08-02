@@ -71,7 +71,8 @@ void test_parser(void **state) {
     setup("pb123");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH8, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }
@@ -81,7 +82,8 @@ void test_parser(void **state) {
     setup("ps12345");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH16, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }
@@ -91,7 +93,8 @@ void test_parser(void **state) {
     setup("pi1234567");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH32, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }
@@ -101,7 +104,8 @@ void test_parser(void **state) {
     setup("pl1234567");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH64, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }
@@ -111,7 +115,8 @@ void test_parser(void **state) {
     setup("pd3.1415");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH64, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }
@@ -121,7 +126,8 @@ void test_parser(void **state) {
     setup("pf3.1415");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH32, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }
@@ -131,7 +137,8 @@ void test_parser(void **state) {
     setup("pb'c'");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH8, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }
@@ -141,7 +148,8 @@ void test_parser(void **state) {
     setup("pb'\\\\'");
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+    assert_int_equal(HOG_OP_PUSH8, *vm.mem);
+    assert_memory_equal(&expected, vm.mem + 1, sizeof(expected));
 
     teardown();
   }

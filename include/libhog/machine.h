@@ -92,7 +92,7 @@ enum hog_ops {
   HOG_OP_PUSH32,
   HOG_OP_PUSH64,
 
-  HOG_OP_POPH8,
+  HOG_OP_POP8,
   HOG_OP_POP16,
   HOG_OP_POP32,
   HOG_OP_POP64,

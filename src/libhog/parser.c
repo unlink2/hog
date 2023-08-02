@@ -34,7 +34,10 @@ size_t hog_tok_next(FILE *f, char *buffer, size_t len) {
 size_t hog_parse_len_op(struct hog_vm *vm, char *len_op) {
   int op = '\0';
   op = fgetc(vm->stdin);
-  *len_op = (char)op;
+
+  if (len_op) {
+    *len_op = (char)op;
+  }
 
   switch (op) {
   case 'l':
@@ -125,28 +128,34 @@ void hog_parse(struct hog_vm *vm) {
 
     switch (len_op) {
     case 'b': {
+      hog_vm_push1(vm, HOG_OP_PUSH8);
       int8_t n = (int8_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
     case 's': {
+      hog_vm_push1(vm, HOG_OP_PUSH16);
       int16_t n = (int16_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
     case 'i': {
+      hog_vm_push1(vm, HOG_OP_PUSH32);
       int32_t n = (int32_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
     case 'l': {
+      hog_vm_push1(vm, HOG_OP_PUSH64);
       int64_t n = (int64_t)num;
       hog_vm_pushn(vm, &n, len);
     } break;
     case 'f': {
+      hog_vm_push1(vm, HOG_OP_PUSH32);
       double n = 0;
       memcpy(&n, &num, sizeof(n));
       float nf = (float)n;
       hog_vm_pushn(vm, &nf, len);
     } break;
     case 'd': {
+      hog_vm_push1(vm, HOG_OP_PUSH64);
       double n = 0;
       memcpy(&n, &num, sizeof(n));
       hog_vm_pushn(vm, &n, len);
@@ -156,10 +165,30 @@ void hog_parse(struct hog_vm *vm) {
       abort();
     }
   } break;
-  case 'P':
-    // TODO: pull
-    {}
-    break;
+  case 'P': {
+    char len_op = '\0';
+    size_t len = hog_parse_len_op(vm, &len_op);
+    if (hog_err()) {
+      goto error;
+    }
+    switch (len) {
+    case 1:
+      hog_vm_push1(vm, HOG_OP_POP8);
+      break;
+    case 2:
+      hog_vm_push1(vm, HOG_OP_POP16);
+      break;
+    case 4:
+      hog_vm_push1(vm, HOG_OP_POP32);
+      break;
+    case 8:
+      hog_vm_push1(vm, HOG_OP_POP64);
+      break;
+    default:
+      // not possible!
+      abort();
+    }
+  } break;
   case 's':
     // ouput a string
     {
