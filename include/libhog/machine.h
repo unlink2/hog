@@ -86,6 +86,17 @@ enum hog_ops {
   HOG_OP_READ32,
   HOG_OP_READ64,
 
+  // push and pull
+  HOG_OP_PUSH8,
+  HOG_OP_PUSH16,
+  HOG_OP_PUSH32,
+  HOG_OP_PUSH64,
+
+  HOG_OP_PULLH8,
+  HOG_OP_PULL16,
+  HOG_OP_PULL32,
+  HOG_OP_PULL64,
+
   // output commands
   // pops n bits off the stack and outputs them
 

@@ -13,10 +13,9 @@ size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
     if (read_res == -1) {
       return read_res;
     }
-
-    // exit conditions
     if ((isspace(c) && written != 0) || c == '\0' || c == '\n' ||
         written >= len - 1) {
+      // exit conditions
       break;
     }
 
@@ -25,15 +24,39 @@ size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
       written++;
     }
   }
-
   buffer[written] = '\0';
 
   return written;
 }
 
+size_t hog_parse_len_op(struct hog_vm *vm) {
+  char op = '\0';
+  vm->read(vm->stdin, &op, 1);
+
+  switch (op) {
+  case 'l':
+    return 8;
+  case 'i':
+    return 4;
+  case 's':
+    return 2;
+  case 'b':
+    return 1;
+  default:
+    hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Length-Op '%c' was not found!\n",
+                 op);
+    break;
+  }
+
+  return 0;
+}
+
 void hog_parse(struct hog_vm *vm) {
+  // save original sp so we can revert in case of error
+  size_t start_sp = vm->sp;
+
   const size_t buffer_len = 128;
-  const char buffer[buffer_len];
+  char buffer[buffer_len];
 
   char op = '\0';
   vm->read(vm->stdin, &op, 1);
@@ -42,17 +65,60 @@ void hog_parse(struct hog_vm *vm) {
   case ':':
     // TODO: define word at current sp address
     break;
+  case ';':
+    hog_vm_push(vm, HOG_OP_RET);
+    break;
   case 'e':
     // halt command
     hog_vm_push(vm, HOG_OP_HLT);
     break;
+  case 'p':
+    // TODO: push
+    {}
+    break;
   case 'P':
+    // TODO: pull
+    {}
+    break;
+  case 's':
+    // ouput a string
+    {
+      hog_vm_push(vm, HOG_OP_PUTS);
+      // has to start with "
+      char c = '\0';
+      vm->read(vm->stdin, &c, 1);
+      if (c != '"') {
+        hog_err_fset(HOG_ERR_PARSE_EXPECTED_STRING, "String expected");
+        goto error;
+      }
+
+      char prev = c;
+      while ((vm->read(vm->stdin, &c, 1) != -1) && c != '\0' &&
+             (c != '"' && prev != '\\')) {
+        // handle escaping
+        if (prev == '\\' || c != '\\') {
+          hog_vm_push(vm, c);
+        }
+
+        prev = c;
+      }
+
+      // has to end with "
+      if (c != '"') {
+        hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_STRING, "Unterminated string");
+        goto error;
+      }
+    }
     break;
   case '?':
     // TODO: output syntax help
     break;
   default:
     hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Op '%c' was not found!\n", op);
-    break;
+    goto error;
   }
+
+  return;
+error:
+  vm->sp = start_sp;
 }

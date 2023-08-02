@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-const char *test_tokens = "test   tokens";
+const char *test_tokens = "test   tokens  \nNext";
 size_t test_tokens_idx = 0;
 
 size_t test_tok_read(int fd, void *buffer, size_t len) {
@@ -28,6 +28,14 @@ void test_tok(void **state) {
   n = hog_tok_next(test_tok_read, 0, (char *)buffer, 64);
   assert_string_equal("tokens", buffer);
   assert_int_equal(n, 6);
+
+  n = hog_tok_next(test_tok_read, 0, (char *)buffer, 64);
+  assert_string_equal("", buffer);
+  assert_int_equal(0, n);
+
+  n = hog_tok_next(test_tok_read, 0, (char *)buffer, 64);
+  assert_string_equal("Next", buffer);
+  assert_int_equal(n, 4);
 
   n = hog_tok_next(test_tok_read, 0, (char *)buffer, 64);
   assert_string_equal("", buffer);
