@@ -14,9 +14,6 @@ struct hog_config hog_config_init(void) {
   self.stdout = fileno(stdout);
   self.fin = fileno(stdin);
 
-  self.read = hog_std_read;
-  self.write = hog_std_write;
-
   return self;
 }
 

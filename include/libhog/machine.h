@@ -130,14 +130,11 @@ struct hog_vm {
   size_t mem_size;
 
   // user facing input
-  int stdin;
+  FILE *stdin;
   // user facing output
-  int stdout;
+  FILE *stdout;
   // fin is the target file buffer
-  int fin;
-
-  hog_read read;
-  hog_write write;
+  FILE *fin;
 
   // registers
   size_t sp; // stack pointer

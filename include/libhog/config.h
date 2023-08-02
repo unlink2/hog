@@ -11,9 +11,6 @@ struct hog_config {
   int stdin;
   int stdout;
   int fin;
-
-  hog_write write;
-  hog_read read;
 };
 
 struct hog_config hog_config_init(void);

@@ -4,12 +4,12 @@
 #include "libhog/machine.h"
 #include <ctype.h>
 
-size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
-  char c = '\0';
+size_t hog_tok_next(FILE *f, char *buffer, size_t len) {
+  int c = '\0';
   size_t written = 0;
   size_t read_res = 0;
   buffer[0] = '\0';
-  while ((read_res = read(fd, &c, 1)) != -1) {
+  while ((c = fgetc(f)) != -1) {
     if (read_res == -1) {
       return read_res;
     }
@@ -20,7 +20,7 @@ size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
     }
 
     if (!isspace(c)) {
-      buffer[written] = c;
+      buffer[written] = (char)c;
       written++;
     }
   }
@@ -30,8 +30,8 @@ size_t hog_tok_next(hog_read read, int fd, char *buffer, size_t len) {
 }
 
 size_t hog_parse_len_op(struct hog_vm *vm) {
-  char op = '\0';
-  vm->read(vm->stdin, &op, 1);
+  int op = '\0';
+  op = fgetc(vm->stdin);
 
   switch (op) {
   case 'l':
@@ -63,8 +63,7 @@ void hog_parse(struct hog_vm *vm) {
   const size_t buffer_len = 128;
   char buffer[buffer_len];
 
-  char op = '\0';
-  vm->read(vm->stdin, &op, 1);
+  int op = fgetc(vm->stdin);
 
   switch (op) {
   case ':':
@@ -89,24 +88,24 @@ void hog_parse(struct hog_vm *vm) {
     // ouput a string
     {
       hog_vm_push1(vm, HOG_OP_PUTS);
-      hog_vm_push1(vm, hog_parse_word(vm));
+      size_t addr = hog_parse_word(vm);
+      hog_vm_pushn(vm, &addr, sizeof(addr));
     }
     break;
   case '"': {
     // has to start with "
-    char c = '\0';
-    vm->read(vm->stdin, &c, 1);
+    int c = fgetc(vm->stdin);
     if (c != '"') {
       hog_err_fset(HOG_ERR_PARSE_EXPECTED_STRING, "String expected");
       goto error;
     }
 
-    char prev = c;
-    while ((vm->read(vm->stdin, &c, 1) != -1) && c != '\0' &&
+    int prev = c;
+    while ((c = fgetc(vm->stdin)) != -1 && c != '\0' &&
            (c != '"' && prev != '\\')) {
       // handle escaping
       if (prev == '\\' || c != '\\') {
-        hog_vm_push1(vm, c);
+        hog_vm_push1(vm, (char)c);
       }
 
       prev = c;
