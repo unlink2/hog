@@ -3,6 +3,8 @@
 #include "libhog/log.h"
 #include "libhog/machine.h"
 #include <ctype.h>
+#include <stdio.h>
+#include <string.h>
 
 size_t hog_tok_next(FILE *f, char *buffer, size_t len) {
   int c = '\0';
@@ -51,7 +53,44 @@ size_t hog_parse_len_op(struct hog_vm *vm) {
   return 0;
 }
 
-int64_t hog_parse_number(struct hog_vm *vm) {}
+int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
+  const size_t buffer_len = 128;
+  char buffer[buffer_len];
+
+  size_t written = hog_tok_next(vm->stdin, (char *)&buffer, buffer_len);
+
+  int64_t val = 0;
+
+  if (buffer[0] == '\'') {
+    // char
+    size_t index = 1;
+    if (buffer[1] == '\\') {
+      index = 2;
+    }
+    if (buffer[index + 1] != '\'' || written > index + 2) {
+      hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_CHAR, "Unterminated char\n");
+      return 0;
+    }
+    val = (int64_t)buffer[index];
+  } else if (strstr(buffer, ".") != NULL) {
+    // float
+    double fval = strtof(buffer, NULL);
+    memcpy(&val, &fval, sizeof(fval));
+    if (errno) {
+      hog_errno();
+      return 0;
+    }
+  } else {
+    // int
+    val = strtol(buffer, NULL, 0);
+    if (errno) {
+      hog_errno();
+      return 0;
+    }
+  }
+
+  return val;
+}
 
 // parse a word and push its address
 size_t hog_parse_word(struct hog_vm *vm) {}
@@ -59,9 +98,6 @@ size_t hog_parse_word(struct hog_vm *vm) {}
 void hog_parse(struct hog_vm *vm) {
   // save original sp so we can revert in case of error
   size_t start_sp = vm->sp;
-
-  const size_t buffer_len = 128;
-  char buffer[buffer_len];
 
   int op = fgetc(vm->stdin);
 
@@ -76,10 +112,35 @@ void hog_parse(struct hog_vm *vm) {
     // halt command
     hog_vm_push1(vm, HOG_OP_HLT);
     break;
-  case 'p':
-    // TODO: push
-    {}
-    break;
+  case 'p': {
+    size_t len = hog_parse_len_op(vm);
+    if (hog_err()) {
+      goto error;
+    }
+    int64_t num = hog_parse_number(vm, len);
+
+    switch (len) {
+    case 1: {
+      int8_t n = (int8_t)num;
+      hog_vm_pushn(vm, &n, len);
+    } break;
+    case 2: {
+      int16_t n = (int16_t)num;
+      hog_vm_pushn(vm, &n, len);
+    } break;
+    case 4: {
+      int32_t n = (int32_t)num;
+      hog_vm_pushn(vm, &n, len);
+    } break;
+    case 8: {
+      int64_t n = (int64_t)num;
+      hog_vm_pushn(vm, &n, len);
+    } break;
+    default:
+      // not possible!
+      abort();
+    }
+  } break;
   case 'P':
     // TODO: pull
     {}

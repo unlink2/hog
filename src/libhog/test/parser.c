@@ -44,7 +44,8 @@ void test_tok(void **state) {
   fclose(vm.stdin);                                                            \
   fclose(vm.stdout);                                                           \
   fclose(vm.fin);                                                              \
-  hog_vm_free(&vm);
+  hog_vm_free(&vm);                                                            \
+  hog_err_set(HOG_OK)
 
 void test_parser(void **state) {
   {
@@ -52,7 +53,7 @@ void test_parser(void **state) {
 
     hog_parse(&vm);
     assert_false(hog_err());
-    assert_string_equal("\"Test String\"", vm.mem);
+    assert_string_equal("\"Test String\"", (char *)vm.mem);
 
     teardown();
   }
@@ -61,6 +62,83 @@ void test_parser(void **state) {
 
     hog_parse(&vm);
     assert_int_equal(HOG_ERR_PARSE_UNTERMINATED_STRING, hog_err());
+
+    teardown();
+  }
+  {
+    const int8_t expected = 123;
+
+    setup("pb123");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    const int16_t expected = 12345;
+
+    setup("ps12345");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    const int32_t expected = 1234567;
+
+    setup("pi1234567");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    const int64_t expected = 1234567;
+
+    setup("pl1234567");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    const double expected = 3.1415F;
+
+    setup("pl3.1415");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    const char expected = 'c';
+
+    setup("pb'c'");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    const char expected = '\\';
+
+    setup("pb'\\\\'");
+    hog_parse(&vm);
+    assert_false(hog_err());
+    assert_memory_equal(&expected, vm.mem, sizeof(expected));
+
+    teardown();
+  }
+  {
+    setup("pb'c");
+    hog_parse(&vm);
+    assert_int_equal(HOG_ERR_PARSE_UNTERMINATED_CHAR, hog_err());
 
     teardown();
   }
