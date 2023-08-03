@@ -35,7 +35,7 @@
 
 void test_machine(void **state) {
   {
-    setup("e");
+    setup("b%xp12 e");
     assert_vm("");
     teardown();
   }

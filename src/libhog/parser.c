@@ -39,6 +39,7 @@ int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
 
   int64_t val = 0;
 
+  char *end = NULL;
   if (buffer[0] == '\'') {
     // char
     size_t index = 1;
@@ -52,7 +53,7 @@ int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
     val = (int64_t)buffer[index];
   } else if (strstr(buffer, ".") != NULL) {
     // float
-    double fval = strtof(buffer, NULL);
+    double fval = strtof(buffer, &end);
     memcpy(&val, &fval, sizeof(fval));
     if (errno) {
       hog_errno();
@@ -60,11 +61,15 @@ int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
     }
   } else {
     // int
-    val = strtol(buffer, NULL, 0);
+    val = strtol(buffer, &end, 0);
     if (errno) {
       hog_errno();
       return 0;
     }
+  }
+
+  if (end != NULL && strlen(end) != 0) {
+    hog_err_fset(HOG_ERR_INVAL_NUM, "Invalid number %s\n", buffer);
   }
 
   return val;

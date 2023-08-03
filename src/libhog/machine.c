@@ -224,6 +224,31 @@ size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer) {
   return 1;
 }
 
+void hog_vm_puts(struct hog_vm *self) {}
+
+void hog_vm_dbg_dump(struct hog_vm *self) {
+  size_t start = 0;
+  const size_t range = 0x100;
+  if (self->ip > range) {
+    start = self->ip - range;
+  }
+
+  printf("Memory dump around ip %lx\n", self->ip);
+  for (size_t i = start; i < MIN(start + range, self->mem_size); i++) {
+    if (i % 16 == 0) {
+      printf("\n%08lx\t", i);
+    }
+    printf("%02x ", self->mem[i]);
+  }
+  puts("\n");
+}
+
+void hog_vm_push(struct hog_vm *self) {
+  size_t len = hog_vm_opt_len(self->opt);
+  hog_vm_pushn(self, self->mem + self->ip, len);
+  self->ip += len;
+}
+
 int8_t hog_vm_tick(struct hog_vm *self) {
   int8_t op = 0;
   self->ip += hog_vm_read1(self, self->ip, &op);
@@ -234,14 +259,33 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_HLT:
     self->hlt = true;
     break;
-  case HOG_OP_PUTS: {
-    char c = '\0';
-    while ((c = (char)hog_vm_read1(self, self->ip, (int8_t *)&c))) {
-      fputc(c, self->stdout);
-    }
-  } break;
+  case HOG_OP_T8:
+  case HOG_OP_T16:
+  case HOG_OP_T32:
+  case HOG_OP_T64:
+  case HOG_OP_TF:
+  case HOG_OP_TD:
+  case HOG_OP_TWORD:
+    self->opt = (int)op;
+    break;
+  case HOG_OP_FMT_IDEC:
+  case HOG_OP_FMT_UDEC:
+  case HOG_OP_FMT_HEX:
+  case HOG_OP_FMT_BIN:
+  case HOG_OP_FMT_F:
+  case HOG_OP_FMT_STR:
+    self->fmt = (int)op;
+    break;
+  case HOG_OP_PUSH:
+    hog_vm_push(self);
+    break;
+  case HOG_OP_PUTS:
+    hog_vm_puts(self);
+    break;
   default:
-    hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation: %d\n", op);
+    hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %d\n",
+                 self->ip - 1, op);
+    hog_vm_dbg_dump(self);
     break;
   }
 

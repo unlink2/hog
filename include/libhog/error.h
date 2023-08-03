@@ -29,6 +29,7 @@ enum hog_error {
   HOG_ERR_PARSE_UNTERMINATED_STRING,
   HOG_ERR_PARSE_WORD_NOT_FOUND,
   HOG_ERR_PARSE_UNTERMINATED_CHAR,
+  HOG_ERR_INVAL_NUM,
 
   // errno is stored in err_detail
   HOG_ERRNO
