@@ -7,6 +7,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define HOG_VM_DEFAULT_MEM_SIZE 1024
 
@@ -55,25 +57,17 @@ enum hog_ops {
   HOG_OP_BIT_AND,
   HOG_OP_BIT_OR,
   HOG_OP_BIT_XOR,
+  HOG_OP_BIT_NOT,
   HOG_OP_AND,
   HOG_OP_OR,
 
   // equal comparison
   HOG_OP_EQ,
-
-  // not equal comparison
-  HOG_OP_NE,
-
   // greater
   HOG_OP_GT,
-  HOG_OP_GT_EQ,
-
   // less
   HOG_OP_LT,
-  HOG_OP_LT_EQ,
-
   // pops one value off the stack and nots it
-  HOG_OP_BIT_NOT,
   HOG_OP_NOT,
 
   // reads the next 64 bits after op and jmps
@@ -82,18 +76,16 @@ enum hog_ops {
 
   // pop a value off the stack and jump if...
   HOG_OP_JMP_ZERO,
-  HOG_OP_JMP_NOT_ZERO,
 
-  // reads the next 64 bits after op and jmps
-  // pushes the callee's ip+1+8 to the stack
+  // pops 64 bits and jmps
+  // pushes the callee's ip+1 to the stack
   HOG_OP_CALL,
 
   // pops 64 bits off the stack and sets ip
   // to its value
   HOG_OP_RET,
 
-  // Input commands
-  // reads n bits from the input stream and
+  // reads n bytes (len gotten from stack) from the input stream and
   // pushes them to the stack
   HOG_OP_READ,
 
@@ -104,21 +96,32 @@ enum hog_ops {
   // output commands
   // pops n bits off the stack and outputs them
 
-  // char literal
-  HOG_OP_FMT_CHAR,
-
   // set integer format
   HOG_OP_FMT_UDEC, // unsigned
   HOG_OP_FMT_IDEC, // signed
+  HOG_OP_FMT_CHAR,
   HOG_OP_FMT_HEX,
   HOG_OP_FMT_BIN,
+  HOG_OP_FMT_STR,
   HOG_OP_FMT_F // float
 
 };
 
+struct hog_word_map {
+  size_t addr;
+  const char *word;
+};
+
+struct hog_word_map hog_word_map_init(size_t addr, const char *word);
+
+void hog_word_map_free(struct hog_word_map *self);
+
 struct hog_vm {
   int8_t *mem;
   size_t mem_size;
+
+  struct hog_word_map *words;
+  size_t words_len;
 
   enum hog_ops opt;
   enum hog_ops fmt;
@@ -142,6 +145,10 @@ struct hog_vm {
 
 struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
                           FILE *fin);
+
+void hog_vm_def(struct hog_vm *self, size_t addr, const char *word);
+
+struct hog_word_map *hog_vm_lookup(struct hog_vm *self, const char *word);
 
 size_t hog_vm_opt_len(enum hog_ops op);
 

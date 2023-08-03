@@ -6,6 +6,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct hog_word_map hog_word_map_init(size_t addr, const char *word) {
+  struct hog_word_map self;
+  memset(&self, 0, sizeof(self));
+  self.addr = addr;
+  self.word = strdup(word);
+  return self;
+}
+
+void hog_word_map_free(struct hog_word_map *self) { free((void *)self->word); }
+
 struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
                           FILE *fin) {
   size_t total_size = mem_size * sizeof(int8_t);
@@ -26,6 +36,20 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
   self.fin = fin;
 
   return self;
+}
+
+void hog_vm_def(struct hog_vm *self, size_t addr, const char *word) {
+  // TODO: avoid realloc every call...
+}
+
+struct hog_word_map *hog_vm_lookup(struct hog_vm *self, const char *word) {
+  for (size_t i = 0; i < self->words_len; i++) {
+    if (strcmp(word, self->words[i].word) == 0) {
+      return &self->words[i];
+    }
+  }
+
+  return NULL;
 }
 
 size_t hog_vm_opt_len(enum hog_ops op) {
@@ -211,4 +235,13 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   return op;
 }
 
-void hog_vm_free(struct hog_vm *self) { free(self->mem); }
+void hog_vm_free(struct hog_vm *self) {
+  for (size_t i = 0; i < self->words_len; i++) {
+    hog_word_map_free(&self->words[i]);
+  }
+  if (self->words) {
+    free(self->words);
+  }
+
+  free(self->mem);
+}

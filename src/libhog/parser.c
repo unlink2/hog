@@ -70,6 +70,37 @@ int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
   return val;
 }
 
+void hog_parse_fmt(struct hog_vm *vm) {
+  int op = fgetc(vm->stdin);
+
+  switch (op) {
+  case 's':
+    hog_vm_push1(vm, HOG_OP_FMT_STR);
+    break;
+  case 'i':
+    hog_vm_push1(vm, HOG_OP_FMT_UDEC);
+    break;
+  case 'd':
+    hog_vm_push1(vm, HOG_OP_FMT_IDEC);
+    break;
+  case 'x':
+    hog_vm_push1(vm, HOG_OP_FMT_HEX);
+    break;
+  case 'b':
+    hog_vm_push1(vm, HOG_OP_FMT_BIN);
+    break;
+  case 'f':
+    hog_vm_push1(vm, HOG_OP_FMT_F);
+    break;
+  case 'c':
+    hog_vm_push1(vm, HOG_OP_FMT_CHAR);
+    break;
+  default:
+    hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Op '%c' was not found!\n", op);
+    break;
+  }
+}
+
 // parse a word and push its address
 size_t hog_parse_word(struct hog_vm *vm) {}
 
@@ -126,7 +157,7 @@ int hog_parse(struct hog_vm *vm) {
   case 'p': {
     size_t len = hog_vm_opt_len(vm->opt_parser);
     if (hog_err()) {
-      goto error;
+      break;
     }
     int64_t num = 0;
 
@@ -186,8 +217,38 @@ int hog_parse(struct hog_vm *vm) {
   case 'D':
     hog_vm_push1(vm, HOG_OP_DUP);
     break;
+  case 'R':
+    hog_vm_push1(vm, HOG_OP_READ);
+    break;
+  case 'r':
+    hog_vm_push1(vm, HOG_OP_RET);
+    break;
+  case 'c':
+    hog_vm_push1(vm, HOG_OP_CALL);
+    break;
+  case 'j':
+    hog_vm_push1(vm, HOG_OP_JMP);
+    break;
+  case 'J':
+    hog_vm_push1(vm, HOG_OP_JMP_ZERO);
+    break;
   case '.':
     hog_vm_push1(vm, HOG_OP_PUTS);
+    break;
+  case '%':
+    hog_parse_fmt(vm);
+    break;
+  case '!':
+    hog_vm_push1(vm, HOG_OP_NOT);
+    break;
+  case '=':
+    hog_vm_push1(vm, HOG_OP_EQ);
+    break;
+  case '>':
+    hog_vm_push1(vm, HOG_OP_LT);
+    break;
+  case '<':
+    hog_vm_push1(vm, HOG_OP_GT);
     break;
   case '"': {
     // has to start with "
@@ -206,9 +267,43 @@ int hog_parse(struct hog_vm *vm) {
     // has to end with "
     if (c != '"') {
       hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_STRING, "Unterminated string\n");
-      goto error;
     }
   } break;
+
+  case '+':
+    hog_vm_push1(vm, HOG_OP_ADD);
+    break;
+  case '-':
+    hog_vm_push1(vm, HOG_OP_SUB);
+    break;
+  case '*':
+    hog_vm_push1(vm, HOG_OP_MUL);
+    break;
+  case '/':
+    hog_vm_push1(vm, HOG_OP_DIV);
+    break;
+  case '&':
+    hog_vm_push1(vm, HOG_OP_BIT_AND);
+    break;
+  case '|':
+    hog_vm_push1(vm, HOG_OP_BIT_OR);
+    break;
+  case '~':
+    hog_vm_push1(vm, HOG_OP_BIT_NOT);
+    break;
+  case '^':
+    hog_vm_push1(vm, HOG_OP_BIT_XOR);
+    break;
+  case 'a':
+    hog_vm_push1(vm, HOG_OP_AND);
+    break;
+  case 'o':
+    hog_vm_push1(vm, HOG_OP_OR);
+    break;
+
+  case ',':
+    hog_vm_push1(vm, HOG_OP_PARSE);
+    break;
 
   case '?':
     // TODO: output syntax help
@@ -217,6 +312,10 @@ int hog_parse(struct hog_vm *vm) {
     break;
   default:
     hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Op '%c' was not found!\n", op);
+    break;
+  }
+
+  if (hog_err()) {
     goto error;
   }
 
