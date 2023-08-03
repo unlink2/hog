@@ -97,7 +97,7 @@ int8_t hog_vm_pop1(struct hog_vm *self) {
     next_sp = self->sp - 1;
   }
 
-  int8_t val = self->mem[self->sp];
+  int8_t val = self->mem[self->sp - 1];
   self->sp = next_sp;
   return val;
 }
@@ -224,7 +224,27 @@ size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer) {
   return 1;
 }
 
-void hog_vm_puts(struct hog_vm *self) {}
+void hog_vm_puts_int(struct hog_vm *self, int64_t val) {
+  switch (self->fmt) {
+  case HOG_OP_FMT_HEX:
+    fprintf(self->stdout, "%lx", val);
+    break;
+  default:
+    abort();
+  }
+}
+
+void hog_vm_puts(struct hog_vm *self) {
+  switch (self->opt) {
+  case HOG_OP_T8: {
+    int8_t b = 0;
+    hog_vm_popn(self, &b, sizeof(b));
+    hog_vm_puts_int(self, b);
+  } break;
+  default:
+    abort();
+  }
+}
 
 void hog_vm_dbg_dump(struct hog_vm *self) {
   size_t start = 0;
