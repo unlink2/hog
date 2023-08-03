@@ -269,6 +269,12 @@ void hog_vm_push(struct hog_vm *self) {
   self->ip += len;
 }
 
+void hog_vm_pop(struct hog_vm *self) {
+  size_t len = hog_vm_opt_len(self->opt);
+  int64_t buf = 0;
+  hog_vm_popn(self, &buf, len);
+}
+
 int8_t hog_vm_tick(struct hog_vm *self) {
   int8_t op = 0;
   self->ip += hog_vm_read1(self, self->ip, &op);
@@ -298,6 +304,9 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     break;
   case HOG_OP_PUSH:
     hog_vm_push(self);
+    break;
+  case HOG_OP_POP:
+    hog_vm_pop(self);
     break;
   case HOG_OP_PUTS:
     hog_vm_puts(self);

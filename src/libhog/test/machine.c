@@ -39,4 +39,9 @@ void test_machine(void **state) {
     assert_vm("c");
     teardown();
   }
+  {
+    setup("b%xp12 p13 p14 PP .e");
+    assert_vm("c");
+    teardown();
+  }
 }
