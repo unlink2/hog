@@ -141,10 +141,10 @@ void test_parser(void **state) {
     const char expected = 'c';
 
     setup("bp'c'");
-    hog_parse(&vm);
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_T8, *vm.mem + 1);
-    assert_int_equal(HOG_OP_PUSH, *vm.mem + 1);
+    assert_int_equal(HOG_OP_T8, *vm.mem);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
     assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
@@ -153,16 +153,16 @@ void test_parser(void **state) {
     const char expected = '\\';
 
     setup("bp'\\\\'");
-    hog_parse(&vm);
+    hog_parse_all(&vm);
     assert_false(hog_err());
-    assert_int_equal(HOG_OP_PUSH, *vm.mem + 1);
+    assert_int_equal(HOG_OP_PUSH, *(vm.mem + 1));
     assert_memory_equal(&expected, vm.mem + 2, sizeof(expected));
 
     teardown();
   }
   {
     setup("bp'c");
-    hog_parse(&vm);
+    hog_parse_all(&vm);
     assert_int_equal(HOG_ERR_PARSE_UNTERMINATED_CHAR, hog_err());
 
     teardown();
