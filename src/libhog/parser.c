@@ -102,7 +102,35 @@ void hog_parse_fmt(struct hog_vm *vm) {
 }
 
 // parse a word and push its address
-size_t hog_parse_word(struct hog_vm *vm) {}
+void hog_parse_def_word(struct hog_vm *vm) {
+  const size_t buf_len = 64;
+  char buf[buf_len];
+  hog_tok_next(vm->stdin, buf, buf_len);
+
+  if (hog_err()) {
+    return;
+  }
+  hog_vm_def(vm, vm->sp, buf);
+}
+
+size_t hog_parse_word(struct hog_vm *vm) {
+  const size_t buf_len = 64;
+  char buf[buf_len];
+  hog_tok_next(vm->stdin, buf, buf_len);
+
+  if (hog_err()) {
+    return 0;
+  }
+
+  struct hog_word_map *map = hog_vm_lookup(vm, buf);
+
+  if (!map) {
+    hog_err_fset(HOG_ERR_PARSE_WORD_NOT_FOUND, "Word not found: %s\n", buf);
+    return 0;
+  }
+
+  return map->addr;
+}
 
 void hog_parse_all(struct hog_vm *vm) {
   while (hog_parse(vm) != -1 && !hog_err()) {
@@ -115,9 +143,13 @@ int hog_parse(struct hog_vm *vm) {
 
   int op = fgetc(vm->stdin);
 
+  while (isspace(op)) {
+    op = fgetc(vm->stdin);
+  }
+
   switch (op) {
   case ':':
-    // TODO: define word at current sp address
+    hog_parse_def_word(vm);
     break;
   case ';':
     hog_vm_push1(vm, HOG_OP_RET);
@@ -304,9 +336,12 @@ int hog_parse(struct hog_vm *vm) {
   case ',':
     hog_vm_push1(vm, HOG_OP_PARSE);
     break;
-
+  case 'N':
+    hog_vm_push1(vm, HOG_OP_NOP);
+    break;
   case '?':
     // TODO: output syntax help
+    puts("Command reference...\n");
     break;
   case -1:
     break;

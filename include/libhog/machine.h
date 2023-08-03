@@ -177,6 +177,7 @@ size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer);
 // interpret the current value at ip as an instruction and execute it
 // this will move ip to a new value and change the vm's state
 int8_t hog_vm_tick(struct hog_vm *self);
+size_t hog_vm_tick_all(struct hog_vm *self);
 
 void hog_vm_free(struct hog_vm *self);
 

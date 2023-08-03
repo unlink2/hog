@@ -167,4 +167,15 @@ void test_parser(void **state) {
 
     teardown();
   }
+  {
+    setup("NNN:test");
+    hog_parse_all(&vm);
+    assert_false(hog_err());
+    struct hog_word_map *map = hog_vm_lookup(&vm, "test");
+    assert_non_null(map);
+    assert_string_equal("test", map->word);
+    assert_int_equal(3, map->addr);
+
+    teardown();
+  }
 }

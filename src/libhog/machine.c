@@ -40,6 +40,19 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
 
 void hog_vm_def(struct hog_vm *self, size_t addr, const char *word) {
   // TODO: avoid realloc every call...
+  size_t new_len = self->words_len + 1;
+  struct hog_word_map *new =
+      realloc(self->words, new_len * sizeof(struct hog_word_map));
+
+  if (!new) {
+    hog_error("Failed to resize word list\n");
+    hog_errno();
+    return;
+  }
+
+  self->words_len = new_len;
+  self->words = new;
+  self->words[new_len - 1] = hog_word_map_init(addr, word);
 }
 
 struct hog_word_map *hog_vm_lookup(struct hog_vm *self, const char *word) {
@@ -233,6 +246,16 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   }
 
   return op;
+}
+
+size_t hog_vm_tick_all(struct hog_vm *self) {
+  size_t ticks = 0;
+  while (!self->hlt && !hog_err()) {
+    hog_vm_tick(self);
+    ticks++;
+  }
+
+  return ticks;
 }
 
 void hog_vm_free(struct hog_vm *self) {

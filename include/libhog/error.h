@@ -27,13 +27,12 @@ enum hog_error {
   HOG_ERR_PARSE_UNEXPECTED_TOKEN,
   HOG_ERR_PARSE_EXPECTED_STRING,
   HOG_ERR_PARSE_UNTERMINATED_STRING,
+  HOG_ERR_PARSE_WORD_NOT_FOUND,
   HOG_ERR_PARSE_UNTERMINATED_CHAR,
 
   // errno is stored in err_detail
   HOG_ERRNO
 };
-
-const char *hog_err_to_str(enum hog_error self);
 
 #define hog_errno()                                                            \
   { hog_err_set(HOG_ERRNO); }
@@ -47,8 +46,6 @@ const char *hog_err_to_str(enum hog_error self);
 // sets err to a value
 // to indicate a failure in a call
 void hog_err_set(enum hog_error err);
-
-enum hog_error hog_err_print(FILE *f);
 
 // return error code
 enum hog_error hog_err(void);
