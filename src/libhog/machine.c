@@ -39,6 +39,7 @@ size_t hog_vm_opt_len(enum hog_ops op) {
     return 4;
   case HOG_OP_TD:
   case HOG_OP_T64:
+  case HOG_OP_TWORD:
     return 8;
   default:
     // should never be called with any other value!

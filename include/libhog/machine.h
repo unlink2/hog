@@ -24,7 +24,11 @@ enum hog_ops {
   // input and parses the next instruction
   HOG_OP_PARSE,
 
-  // reads from ip until \0 is read
+  // ouput a string (depends on vm->fmt)
+  // takes n bytes from the stack
+  // and fromats them according to fmt options
+  // if in string mode it will pop an address
+  // where the string should be located
   HOG_OP_PUTS,
 
   // pops a value off the stack and
@@ -37,6 +41,7 @@ enum hog_ops {
   HOG_OP_T16,
   HOG_OP_T32,
   HOG_OP_T64,
+  HOG_OP_TWORD,
 
   HOG_OP_TF, // float
   HOG_OP_TD, // double
@@ -103,19 +108,12 @@ enum hog_ops {
   HOG_OP_FMT_CHAR,
 
   // set integer format
-  HOG_OP_INT_FMT_DEC,
-  HOG_OP_INT_FMT_HEX,
-  HOG_OP_INT_FMT_BIN,
+  HOG_OP_FMT_UDEC, // unsigned
+  HOG_OP_FMT_IDEC, // signed
+  HOG_OP_FMT_HEX,
+  HOG_OP_FMT_BIN,
+  HOG_OP_FMT_F // float
 
-  // output signed integer
-  HOG_OP_FMT_I,
-
-  // output unsigned integer
-  HOG_OP_FMT_U,
-
-  // output float
-  HOG_OP_FMT_F32,
-  HOG_OP_FMT_F64
 };
 
 struct hog_vm {
@@ -123,6 +121,7 @@ struct hog_vm {
   size_t mem_size;
 
   enum hog_ops opt;
+  enum hog_ops fmt;
 
   // used for parser tmp value
   enum hog_ops opt_parser;

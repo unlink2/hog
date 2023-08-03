@@ -115,6 +115,10 @@ int hog_parse(struct hog_vm *vm) {
     hog_vm_push1(vm, HOG_OP_TD);
     vm->opt_parser = HOG_OP_TD;
     break;
+  case 'w':
+    hog_vm_push1(vm, HOG_OP_TWORD);
+    vm->opt_parser = HOG_OP_TWORD;
+    break;
   case 'e':
     // halt command
     hog_vm_push1(vm, HOG_OP_HLT);
@@ -124,7 +128,13 @@ int hog_parse(struct hog_vm *vm) {
     if (hog_err()) {
       goto error;
     }
-    int64_t num = hog_parse_number(vm, len);
+    int64_t num = 0;
+
+    if (vm->opt_parser == HOG_OP_TWORD) {
+      num = (int64_t)hog_parse_word(vm);
+    } else {
+      num = hog_parse_number(vm, len);
+    }
 
     switch (vm->opt_parser) {
     case HOG_OP_T8: {
@@ -160,20 +170,24 @@ int hog_parse(struct hog_vm *vm) {
       memcpy(&n, &num, sizeof(n));
       hog_vm_pushn(vm, &n, len);
     } break;
+    case HOG_OP_TWORD: {
+      hog_vm_push1(vm, HOG_OP_PUSH);
+      size_t n = num;
+      hog_vm_pushn(vm, &n, sizeof(n));
+    } break;
     default:
       // not possible!
       abort();
     }
   } break;
-  case 'P': {
-  } break;
+  case 'P':
+    hog_vm_push1(vm, HOG_OP_POP);
+    break;
+  case 'D':
+    hog_vm_push1(vm, HOG_OP_DUP);
+    break;
   case '.':
-    // ouput a string
-    {
-      hog_vm_push1(vm, HOG_OP_PUTS);
-      size_t addr = hog_parse_word(vm);
-      hog_vm_pushn(vm, &addr, sizeof(addr));
-    }
+    hog_vm_push1(vm, HOG_OP_PUTS);
     break;
   case '"': {
     // has to start with "
@@ -195,6 +209,7 @@ int hog_parse(struct hog_vm *vm) {
       goto error;
     }
   } break;
+
   case '?':
     // TODO: output syntax help
     break;
