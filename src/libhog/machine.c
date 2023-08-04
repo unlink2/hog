@@ -442,6 +442,22 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     }
     self->ip = self->ra_stack[self->ra_ptr];
   } break;
+  case HOG_OP_LOOKUP: {
+    size_t offset = 0;
+    hog_vm_popn(self, &offset, sizeof(offset));
+    if (offset >= self->mem_size) {
+      hog_err_fset(HOG_ERR_VM_MEM_OOB, "%lx is out of bounds\n", offset);
+      break;
+    }
+    struct hog_word_map *target =
+        hog_vm_lookup(self, (const char *)self->mem + offset);
+    if (!target) {
+      hog_err_fset(HOG_ERR_PARSE_WORD_NOT_FOUND, "Word not found: %s\n",
+                   self->mem + offset);
+      break;
+    }
+    hog_vm_pushn(self, &target->addr, sizeof(size_t));
+  } break;
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %x\n",
                  self->ip - 1, op);

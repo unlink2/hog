@@ -101,4 +101,11 @@ void test_machine(void **state) {
     assert_vm("10");
     teardown();
   }
+  {
+    // runtime word lookup
+    setup(":c2_str \"case2\" :main wpc2_str L c b%dp11 . e :case2 b%dp12 . r",
+          "main");
+    assert_vm("1211");
+    teardown();
+  }
 }

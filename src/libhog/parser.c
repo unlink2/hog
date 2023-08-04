@@ -338,6 +338,7 @@ int hog_parse(struct hog_vm *vm) {
       }
       hog_vm_push1(vm, (char)c);
     }
+    hog_vm_push1(vm, '\0');
 
     // has to end with "
     if (c != '"') {
@@ -375,7 +376,9 @@ int hog_parse(struct hog_vm *vm) {
   case 'o':
     hog_vm_push1(vm, HOG_OP_OR);
     break;
-
+  case 'L':
+    hog_vm_push1(vm, HOG_OP_LOOKUP);
+    break;
   case ',':
     hog_vm_push1(vm, HOG_OP_PARSE);
     break;
