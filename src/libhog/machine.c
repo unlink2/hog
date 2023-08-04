@@ -332,6 +332,7 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     hog_vm_dup(self);
     break;
   case HOG_OP_CALL: {
+    hog_vm_dbg_dump(self);
     size_t target = 0;
     hog_vm_popn(self, &target, sizeof(target));
     hog_vm_pushn(self, &self->ra, sizeof(self->ra));
