@@ -40,6 +40,11 @@ void test_machine(void **state) {
     teardown();
   }
   {
+    setup("#this is a comment\n b%xp12 .e");
+    assert_vm("c");
+    teardown();
+  }
+  {
     setup("b%xp12 p13 p14 PP .e");
     assert_vm("c");
     teardown();

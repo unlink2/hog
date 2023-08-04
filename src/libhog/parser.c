@@ -152,6 +152,14 @@ int hog_parse(struct hog_vm *vm) {
     op = fgetc(vm->stdin);
   }
 
+  // filter comments
+  if (op == '#') {
+    while (op != '\n' && op != '\0' && op != -1) {
+      op = fgetc(vm->stdin);
+    }
+    return '#';
+  }
+
   switch (op) {
   case ':':
     hog_parse_def_word(vm);
