@@ -458,6 +458,13 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     }
     hog_vm_pushn(self, &target->addr, sizeof(size_t));
   } break;
+  case HOG_OP_ADD: {
+    int64_t l = hog_vm_popt(self);
+    int64_t r = hog_vm_popt(self);
+    int64_t v = l + r;
+    hog_vm_pusht(self, &v);
+    break;
+  }
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %x\n",
                  self->ip - 1, op);

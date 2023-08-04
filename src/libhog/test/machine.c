@@ -108,4 +108,10 @@ void test_machine(void **state) {
     assert_vm("1211");
     teardown();
   }
+  {
+    // runtime word lookup
+    setup(":main p10 p5 + %d . e", "main");
+    assert_vm("15");
+    teardown();
+  }
 }
