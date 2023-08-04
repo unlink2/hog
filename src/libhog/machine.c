@@ -1,6 +1,7 @@
 #include "libhog/machine.h"
 #include "libhog/error.h"
 #include "libhog/log.h"
+#include "libhog/color.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +35,11 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
   self.stdin = stdin;
   self.stdout = stdout;
   self.fin = fin;
+
+  self.ra_len = 128;
+  self.ra_ptr = 0;
+  self.ra_stack = malloc(self.ra_len * sizeof(size_t));
+  memset(self.ra_stack, 0, sizeof(size_t) * self.ra_len);
 
   return self;
 }
@@ -267,7 +273,15 @@ void hog_vm_dbg_dump(struct hog_vm *self) {
     if (i % 16 == 0) {
       fprintf(stderr, "\n%08lx\t", i);
     }
+
+    if (i == self->ip) {
+      hog_term_escape(stderr, HOG_ANSI_COLOR_RED);
+    } else if (i == self->sp) {
+      hog_term_escape(stderr, HOG_ANSI_COLOR_CYAN);
+    }
+
     fprintf(stderr, "%02x ", self->mem[i]);
+    hog_term_escape(stderr, HOG_ANSI_COLOR_RESET);
   }
   fputs("\n", stderr);
 }
@@ -332,23 +346,22 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     hog_vm_dup(self);
     break;
   case HOG_OP_CALL: {
-    hog_vm_dbg_dump(self);
     size_t target = 0;
     hog_vm_popn(self, &target, sizeof(target));
-    hog_vm_pushn(self, &self->ra, sizeof(self->ra));
-    printf("Call to %x from %x\n", target, self->ip);
-    self->ra = self->ip;
+    self->ra_stack[self->ra_ptr] = self->ip;
+    self->ra_ptr = (self->ra_ptr + 1) % self->ra_len;
     self->ip = target;
   } break;
   case HOG_OP_RET: {
-    size_t target = 0;
-    hog_vm_popn(self, &target, sizeof(target));
-    printf("Return to %x from %x\n", self->ra, self->ip);
-    self->ip = self->ra;
-    self->ra = target;
-  }
+    if (self->ra_ptr == 0) {
+      self->ra_ptr = self->ra_len - 1;
+    } else {
+      self->ra_ptr--;
+    }
+    self->ip = self->ra_stack[self->ra_ptr];
+  } break;
   default:
-    hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %d\n",
+    hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %x\n",
                  self->ip - 1, op);
     hog_vm_dbg_dump(self);
     break;
@@ -389,4 +402,5 @@ void hog_vm_free(struct hog_vm *self) {
   }
 
   free(self->mem);
+  free(self->ra_stack);
 }

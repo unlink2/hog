@@ -131,6 +131,11 @@ struct hog_vm {
   int8_t *mem;
   size_t mem_size;
 
+  // call stack
+  size_t *ra_stack;
+  size_t ra_ptr;
+  size_t ra_len;
+
   struct hog_word_map *words;
   size_t words_len;
 
@@ -150,7 +155,6 @@ struct hog_vm {
   // registers
   size_t sp; // stack pointer
   size_t ip; // instruction pointer
-  size_t ra; // return address
 
   bool hlt;
 };
