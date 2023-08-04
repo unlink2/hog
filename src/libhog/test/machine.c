@@ -84,4 +84,21 @@ void test_machine(void **state) {
     assert_vm("cc");
     teardown();
   }
+  {
+    setup(":case1 b%d.e :main p12 wpcase1 j e", "main");
+    assert_vm("12");
+    teardown();
+  }
+  {
+    // jump if 1
+    setup(":case1 b%d.e :main p12 wpcase1 bp1 J e", "main");
+    assert_vm("12");
+    teardown();
+  }
+  {
+    // jump if not
+    setup(":case1 b%d.e :main p12 wpcase1 bp0 J bp10 . e", "main");
+    assert_vm("10");
+    teardown();
+  }
 }

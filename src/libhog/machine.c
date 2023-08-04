@@ -31,6 +31,7 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
 
   self.opt = HOG_OP_T8;
   self.opt_parser = HOG_OP_T8;
+  self.fmt = HOG_OP_FMT_IDEC;
 
   self.stdin = stdin;
   self.stdout = stdout;
@@ -62,6 +63,7 @@ void hog_vm_def(struct hog_vm *self, size_t addr, const char *word) {
 }
 
 void hog_vm_undef(struct hog_vm *self, size_t addr, const char *word) {
+  // TODO: actually remove undefed words
   struct hog_word_map *map = hog_vm_lookup(self, word);
   if (map) {
     map->word[0] = '\0';
@@ -464,6 +466,7 @@ size_t hog_vm_main(struct hog_vm *self, const char *start_word) {
   if (start_word) {
     struct hog_word_map *w = hog_vm_lookup(self, start_word);
     if (!w) {
+      hog_vm_dbg_dump(self);
       hog_err_fset(HOG_ERR_PARSE_WORD_NOT_FOUND, "Word not found %s\n",
                    start_word);
       return 0;
