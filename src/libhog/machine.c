@@ -334,13 +334,17 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_CALL: {
     size_t target = 0;
     hog_vm_popn(self, &target, sizeof(target));
-    hog_vm_pushn(self, &self->ip, sizeof(size_t));
+    hog_vm_pushn(self, &self->ra, sizeof(self->ra));
+    printf("Call to %x from %x\n", target, self->ip);
+    self->ra = self->ip;
     self->ip = target;
   } break;
   case HOG_OP_RET: {
     size_t target = 0;
     hog_vm_popn(self, &target, sizeof(target));
-    self->ip = target;
+    printf("Return to %x from %x\n", self->ra, self->ip);
+    self->ip = self->ra;
+    self->ra = target;
   }
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %d\n",

@@ -150,6 +150,7 @@ struct hog_vm {
   // registers
   size_t sp; // stack pointer
   size_t ip; // instruction pointer
+  size_t ra; // return address
 
   bool hlt;
 };
