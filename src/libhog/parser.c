@@ -179,6 +179,21 @@ int hog_parse(struct hog_vm *vm) {
   case 'U':
     hog_parse_undef_word(vm);
     break;
+  case 'G':
+    hog_vm_push1(vm, HOG_OP_READ_REL);
+    break;
+  case 'W':
+    hog_vm_push1(vm, HOG_OP_WRITE_REL);
+    break;
+  case 'S': // Stack push
+    hog_vm_push1(vm, HOG_OP_PUSH_SP);
+    break;
+  case 'E': // End scope
+    hog_vm_push1(vm, HOG_OP_POP_SP);
+    break;
+  case 'I': // Instruction ptr push
+    hog_vm_push1(vm, HOG_OP_PUSH_IP);
+    break;
   case ';':
     hog_vm_push1(vm, HOG_OP_RET);
     break;

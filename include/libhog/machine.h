@@ -89,9 +89,20 @@ enum hog_ops {
   // pushes them to the stack
   HOG_OP_READ,
 
+  // pops an address from the stack
+  // and a value from the stack
+  // and reads/writes the value to the address
+  HOG_OP_READ_REL,
+  HOG_OP_WRITE_REL,
+
   // push and pop
   HOG_OP_PUSH,
   HOG_OP_POP,
+
+  // register manip
+  HOG_OP_PUSH_SP,
+  HOG_OP_POP_SP,
+  HOG_OP_PUSH_IP,
 
   // output commands
   // pops n bits off the stack and outputs them
