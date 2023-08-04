@@ -70,12 +70,12 @@ enum hog_ops {
   // pops one value off the stack and nots it
   HOG_OP_NOT,
 
-  // reads the next 64 bits after op and jmps
-  // unconditionally
+  // pops word off the stack and jumps
   HOG_OP_JMP,
 
-  // pop a value off the stack and jump if...
-  HOG_OP_JMP_ZERO,
+  // pops value off the stack and jumps
+  // if it is 1 by getting a word off the stack
+  HOG_OP_JMP_IF,
 
   // pops 64 bits and jmps
   // pushes the callee's ip+1 to the stack
@@ -109,7 +109,7 @@ enum hog_ops {
 
 struct hog_word_map {
   size_t addr;
-  const char *word;
+  char *word;
 };
 
 struct hog_word_map hog_word_map_init(size_t addr, const char *word);
@@ -147,6 +147,7 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
                           FILE *fin);
 
 void hog_vm_def(struct hog_vm *self, size_t addr, const char *word);
+void hog_vm_undef(struct hog_vm *self, size_t addr, const char *word);
 
 struct hog_word_map *hog_vm_lookup(struct hog_vm *self, const char *word);
 

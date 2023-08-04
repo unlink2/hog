@@ -118,6 +118,18 @@ void hog_parse_def_word(struct hog_vm *vm) {
   hog_vm_def(vm, vm->sp, buf);
 }
 
+// parse a word and undef its address
+void hog_parse_undef_word(struct hog_vm *vm) {
+  const size_t buf_len = 64;
+  char buf[buf_len];
+  hog_tok_next(vm->stdin, buf, buf_len);
+
+  if (hog_err()) {
+    return;
+  }
+  hog_vm_undef(vm, vm->sp, buf);
+}
+
 size_t hog_parse_word(struct hog_vm *vm) {
   const size_t buf_len = 64;
   char buf[buf_len];
@@ -163,6 +175,9 @@ int hog_parse(struct hog_vm *vm) {
   switch (op) {
   case ':':
     hog_parse_def_word(vm);
+    break;
+  case 'U':
+    hog_parse_undef_word(vm);
     break;
   case ';':
     hog_vm_push1(vm, HOG_OP_RET);
@@ -275,7 +290,7 @@ int hog_parse(struct hog_vm *vm) {
     hog_vm_push1(vm, HOG_OP_JMP);
     break;
   case 'J':
-    hog_vm_push1(vm, HOG_OP_JMP_ZERO);
+    hog_vm_push1(vm, HOG_OP_JMP_IF);
     break;
   case '.':
     hog_vm_push1(vm, HOG_OP_PUTS);

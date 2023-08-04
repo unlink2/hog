@@ -55,6 +55,13 @@ void hog_vm_def(struct hog_vm *self, size_t addr, const char *word) {
   self->words[new_len - 1] = hog_word_map_init(addr, word);
 }
 
+void hog_vm_undef(struct hog_vm *self, size_t addr, const char *word) {
+  struct hog_word_map *map = hog_vm_lookup(self, word);
+  if (map) {
+    map->word[0] = '\0';
+  }
+}
+
 struct hog_word_map *hog_vm_lookup(struct hog_vm *self, const char *word) {
   for (size_t i = 0; i < self->words_len; i++) {
     if (strcmp(word, self->words[i].word) == 0) {
@@ -230,6 +237,7 @@ void hog_vm_puts_int(struct hog_vm *self, int64_t val) {
     fprintf(self->stdout, "%lx", val);
     break;
   default:
+    hog_error("Invalid puts int\n");
     abort();
   }
 }
@@ -242,6 +250,7 @@ void hog_vm_puts(struct hog_vm *self) {
     hog_vm_puts_int(self, b);
   } break;
   default:
+    hog_error("Invalid puts\n");
     abort();
   }
 }
@@ -253,14 +262,14 @@ void hog_vm_dbg_dump(struct hog_vm *self) {
     start = self->ip - range;
   }
 
-  printf("Memory dump around ip %lx\n", self->ip);
+  fprintf(stderr, "Memory dump around ip %lx\n", self->ip);
   for (size_t i = start; i < MIN(start + range, self->mem_size); i++) {
     if (i % 16 == 0) {
-      printf("\n%08lx\t", i);
+      fprintf(stderr, "\n%08lx\t", i);
     }
-    printf("%02x ", self->mem[i]);
+    fprintf(stderr, "%02x ", self->mem[i]);
   }
-  puts("\n");
+  fputs("\n", stderr);
 }
 
 void hog_vm_push(struct hog_vm *self) {
@@ -273,6 +282,14 @@ void hog_vm_pop(struct hog_vm *self) {
   size_t len = hog_vm_opt_len(self->opt);
   int64_t buf = 0;
   hog_vm_popn(self, &buf, len);
+}
+
+void hog_vm_dup(struct hog_vm *self) {
+  size_t len = hog_vm_opt_len(self->opt);
+  int64_t buf = 0;
+  hog_vm_popn(self, &buf, len);
+  hog_vm_pushn(self, &buf, len);
+  hog_vm_pushn(self, &buf, len);
 }
 
 int8_t hog_vm_tick(struct hog_vm *self) {
@@ -310,6 +327,9 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     break;
   case HOG_OP_PUTS:
     hog_vm_puts(self);
+    break;
+  case HOG_OP_DUP:
+    hog_vm_dup(self);
     break;
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %d\n",
