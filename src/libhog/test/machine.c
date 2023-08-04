@@ -55,7 +55,7 @@ void test_machine(void **state) {
     teardown();
   }
   {
-    setup(":print .r :main b%xp12 D cprint cprint e", "main");
+    setup("NNN :print b .r :main b%xp12 D wpprint c c e", "main");
     assert_vm("cc");
     teardown();
   }
