@@ -331,6 +331,17 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_DUP:
     hog_vm_dup(self);
     break;
+  case HOG_OP_CALL: {
+    size_t target = 0;
+    hog_vm_popn(self, &target, sizeof(target));
+    hog_vm_pushn(self, &self->ip, sizeof(size_t));
+    self->ip = target;
+  } break;
+  case HOG_OP_RET: {
+    size_t target = 0;
+    hog_vm_popn(self, &target, sizeof(target));
+    self->ip = target;
+  }
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %d\n",
                  self->ip - 1, op);
@@ -349,6 +360,19 @@ size_t hog_vm_tick_all(struct hog_vm *self) {
   }
 
   return ticks;
+}
+
+size_t hog_vm_main(struct hog_vm *self, const char *start_word) {
+  if (start_word) {
+    struct hog_word_map *w = hog_vm_lookup(self, start_word);
+    if (!w) {
+      hog_err_fset(HOG_ERR_PARSE_WORD_NOT_FOUND, "Word not found %s\n",
+                   start_word);
+      return 0;
+    }
+    self->ip = w->addr;
+  }
+  return hog_vm_tick_all(self);
 }
 
 void hog_vm_free(struct hog_vm *self) {

@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define setup(usr_input)                                                       \
+#define setup(usr_input, main)                                                 \
   struct hog_vm vm = hog_vm_init(100, tmpfile(), tmpfile(), tmpfile());        \
   fputs(usr_input, vm.stdin);                                                  \
   rewind(vm.stdin);                                                            \
   hog_parse_all(&vm);                                                          \
-  hog_vm_tick_all(&vm);
+  hog_vm_main(&vm, (main));
 
 #define assert_vm(out_expect)                                                  \
   char buf[1024];                                                              \
@@ -35,22 +35,27 @@
 
 void test_machine(void **state) {
   {
-    setup("b%xp12 .e");
+    setup("b%xp12 .e", NULL);
     assert_vm("c");
     teardown();
   }
   {
-    setup("#this is a comment\n b%xp12 .e");
+    setup("#this is a comment\n b%xp12 .e", NULL);
     assert_vm("c");
     teardown();
   }
   {
-    setup("b%xp12 p13 p14 PP .e");
+    setup("b%xp12 p13 p14 PP .e", NULL);
     assert_vm("c");
     teardown();
   }
   {
-    setup("b%xp12 D ..e");
+    setup("b%xp12 D ..e", NULL);
+    assert_vm("cc");
+    teardown();
+  }
+  {
+    setup(":print .r :main b%xp12 D cprint cprint e", "main");
     assert_vm("cc");
     teardown();
   }
