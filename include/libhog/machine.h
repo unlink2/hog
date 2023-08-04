@@ -11,8 +11,7 @@
 #include <string.h>
 
 #define HOG_VM_DEFAULT_MEM_SIZE 1024
-
-#define HOG_VM_PARSE_DEF_KEYWORD ".def"
+#define HOG_VM_DEFAULT_RA_SIZE 128
 
 enum hog_ops {
   // no operation
@@ -77,7 +76,7 @@ enum hog_ops {
   // if it is 1 by getting a word off the stack
   HOG_OP_JMP_IF,
 
-  // pops 64 bits and jmps
+  // pops a word and jmps
   // pushes the callee's ip+1 to the stack
   HOG_OP_CALL,
 
@@ -99,10 +98,16 @@ enum hog_ops {
   HOG_OP_PUSH,
   HOG_OP_POP,
 
+  // lookup a word by name
+  // pops a string's address of the stack
+  // and pushes a corresponding word onto the stack
+  HOG_OP_LOOKUP,
+
   // register manip
   HOG_OP_PUSH_SP,
   HOG_OP_POP_SP,
   HOG_OP_PUSH_IP,
+  HOG_OP_POP_IP,
 
   // output commands
   // pops n bits off the stack and outputs them

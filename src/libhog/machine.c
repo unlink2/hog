@@ -36,7 +36,7 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
   self.stdout = stdout;
   self.fin = fin;
 
-  self.ra_len = 128;
+  self.ra_len = HOG_VM_DEFAULT_RA_SIZE;
   self.ra_ptr = 0;
   self.ra_stack = malloc(self.ra_len * sizeof(size_t));
   memset(self.ra_stack, 0, sizeof(size_t) * self.ra_len);
@@ -129,6 +129,38 @@ size_t hog_vm_popn(struct hog_vm *self, void *data, size_t len) {
   return total;
 }
 
+int64_t hog_vm_popt(struct hog_vm *self) {
+  switch (self->opt) {
+  case HOG_OP_T8: {
+    int8_t b = 0;
+    hog_vm_popn(self, &b, sizeof(b));
+    return b;
+  }
+  case HOG_OP_T16: {
+    int16_t b = 0;
+    hog_vm_popn(self, &b, sizeof(b));
+    return b;
+  }
+  case HOG_OP_TF:
+  case HOG_OP_T32: {
+    int32_t b = 0;
+    hog_vm_popn(self, &b, sizeof(b));
+    return b;
+  }
+  case HOG_OP_TWORD:
+  case HOG_OP_TD:
+  case HOG_OP_T64: {
+    int64_t b = 0;
+    hog_vm_popn(self, &b, sizeof(b));
+    return b;
+  }
+  default:
+    hog_error("Invalid puts\n");
+    abort();
+  }
+  return 0;
+}
+
 void hog_vm_resize(struct hog_vm *self, size_t target) {
   // attempt to resize memory, and error out if it is not possible
   size_t new_mem_size = MAX(self->mem_size * 2, target);
@@ -172,6 +204,11 @@ size_t hog_vm_pushn(struct hog_vm *self, void *data, size_t len) {
   }
 
   return i;
+}
+
+void hog_vm_pusht(struct hog_vm *self, void *b) {
+  size_t len = hog_vm_opt_len(self->opt);
+  hog_vm_pushn(self, &b, len);
 }
 
 size_t hog_vm_readn(struct hog_vm *self, size_t src, int8_t *buffer,
@@ -237,26 +274,46 @@ size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer) {
   return 1;
 }
 
-void hog_vm_puts_int(struct hog_vm *self, int64_t val) {
+void hog_vm_puts_int(struct hog_vm *self, int64_t val) {}
+
+void hog_vm_puts(struct hog_vm *self) {
+  size_t len = hog_vm_opt_len(self->opt);
+  uint64_t val = hog_vm_popt(self);
+
+  // remove bits we do not want
+  uint64_t diff = (sizeof(uint64_t) * 8 - len * 8);
+  val = (val << diff >> diff);
+
+  void *val_ptr = &val;
+  float *fptr = val_ptr;
+  double *dptr = val_ptr;
+
   switch (self->fmt) {
   case HOG_OP_FMT_HEX:
     fprintf(self->stdout, "%lx", val);
     break;
+  case HOG_OP_FMT_BIN:
+    fprintf(self->stdout, "%b", (int)val);
+    break;
+  case HOG_OP_FMT_IDEC:
+    fprintf(self->stdout, "%ld", val);
+    break;
+  case HOG_OP_FMT_UDEC:
+    fprintf(self->stdout, "%li", val);
+    break;
+  case HOG_OP_FMT_F:
+    if (len == 8) {
+      fprintf(self->stdout, "%f", *dptr);
+    } else {
+      fprintf(self->stdout, "%f", *fptr);
+    }
+    break;
+  case HOG_OP_FMT_STR:
+    // TODO: string output
+    hog_warn("String fmt is not implemented!");
+    break;
   default:
-    hog_error("Invalid puts int\n");
-    abort();
-  }
-}
-
-void hog_vm_puts(struct hog_vm *self) {
-  switch (self->opt) {
-  case HOG_OP_T8: {
-    int8_t b = 0;
-    hog_vm_popn(self, &b, sizeof(b));
-    hog_vm_puts_int(self, b);
-  } break;
-  default:
-    hog_error("Invalid puts\n");
+    hog_error("Invalid puts fmt\n");
     abort();
   }
 }
@@ -345,6 +402,29 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_DUP:
     hog_vm_dup(self);
     break;
+  case HOG_OP_JMP_IF: {
+    int64_t val = hog_vm_popt(self);
+    if (!val) {
+      break;
+    }
+  }
+  case HOG_OP_POP_IP:
+  case HOG_OP_JMP: {
+    size_t target = 0;
+    hog_vm_popn(self, &target, sizeof(target));
+    self->ip = target;
+  } break;
+  case HOG_OP_PUSH_IP:
+    hog_vm_pushn(self, &self->ip, sizeof(self->ip));
+    break;
+  case HOG_OP_PUSH_SP:
+    hog_vm_pushn(self, &self->sp, sizeof(self->sp));
+    break;
+  case HOG_OP_POP_SP: {
+    size_t target = 0;
+    hog_vm_popn(self, &target, sizeof(target));
+    self->sp = target;
+  } break;
   case HOG_OP_CALL: {
     size_t target = 0;
     hog_vm_popn(self, &target, sizeof(target));

@@ -40,6 +40,31 @@ void test_machine(void **state) {
     teardown();
   }
   {
+    setup("s %x p0x8FEE .e", NULL);
+    assert_vm("8fee");
+    teardown();
+  }
+  {
+    setup("i %x p0xA8FEE .e", NULL);
+    assert_vm("a8fee");
+    teardown();
+  }
+  {
+    setup("d %x p0xFEDCBA8FEE .e", NULL);
+    assert_vm("fedcba8fee");
+    teardown();
+  }
+  {
+    setup("f %f p3.1415 .e", NULL);
+    assert_vm("3.141500");
+    teardown();
+  }
+  {
+    setup("d %f p3.1415 .e", NULL);
+    assert_vm("3.141500");
+    teardown();
+  }
+  {
     setup("#this is a comment\n b%xp12 .e", NULL);
     assert_vm("c");
     teardown();
@@ -55,7 +80,7 @@ void test_machine(void **state) {
     teardown();
   }
   {
-    setup("NNN :print b .r :main b%xp12 D wpprint c  wpprint c  e", "main");
+    setup("NNN :print b.r:main b%xp12 D wpprint c  wpprint c  e", "main");
     assert_vm("cc");
     teardown();
   }
