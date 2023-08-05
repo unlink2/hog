@@ -34,7 +34,6 @@ enum hog_ops {
 
   // pops a value off the stack and
   // pushes it back twice
-  // reads the next 8 bits to allow duping multiple values at a time
   HOG_OP_DUP,
 
   // integers
@@ -120,7 +119,6 @@ enum hog_ops {
   HOG_OP_FMT_BIN,
   HOG_OP_FMT_STR,
   HOG_OP_FMT_F // float
-
 };
 
 struct hog_word_map {
