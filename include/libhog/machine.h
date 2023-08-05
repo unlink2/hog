@@ -42,6 +42,7 @@ enum hog_ops {
   HOG_OP_T32,
   HOG_OP_T64,
   HOG_OP_TWORD,
+  HOG_OP_TSIZE,
 
   HOG_OP_TF, // float
   HOG_OP_TD, // double

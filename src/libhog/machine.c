@@ -93,8 +93,11 @@ size_t hog_vm_opt_len(enum hog_ops op) {
   case HOG_OP_T64:
   case HOG_OP_TWORD:
     return 8;
+  case HOG_OP_TSIZE:
+    return sizeof(size_t);
   default:
     // should never be called with any other value!
+    hog_error("Invalid opt len\n");
     abort();
   }
 
@@ -155,6 +158,11 @@ int64_t hog_vm_popt(struct hog_vm *self) {
     int64_t b = 0;
     hog_vm_popn(self, &b, sizeof(b));
     return b;
+  }
+  case HOG_OP_TSIZE: {
+    size_t b = 0;
+    hog_vm_popn(self, &b, sizeof(b));
+    return (int64_t)b;
   }
   default:
     hog_error("Invalid puts\n");
@@ -401,6 +409,7 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_TF:
   case HOG_OP_TD:
   case HOG_OP_TWORD:
+  case HOG_OP_TSIZE:
     self->opt = (int)op;
     break;
   case HOG_OP_FMT_IDEC:
@@ -538,7 +547,21 @@ int8_t hog_vm_tick(struct hog_vm *self) {
                    len, target);
       break;
     }
-    // TODO: read values
+    int64_t val = 0;
+    hog_vm_readn(self, target, (int8_t *)&val, len);
+    hog_vm_pushn(self, &val, len);
+  } break;
+  case HOG_OP_WRITE_PTR: {
+    size_t target = 0;
+    size_t len = hog_vm_opt_len(self->opt);
+    hog_vm_popn(self, &target, sizeof(target));
+    if (!hog_vm_is_in_bounds(self->mem_size, target + len)) {
+      hog_err_fset(HOG_ERR_VM_MEM_OOB, "Out of bounds read of len %ld at %lx\n",
+                   len, target);
+      break;
+    }
+    int64_t val = hog_vm_popt(self);
+    hog_vm_writen(self, target, (int8_t *)&val, len);
   } break;
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %x\n",

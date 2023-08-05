@@ -201,6 +201,10 @@ int hog_parse(struct hog_vm *vm) {
     hog_vm_push1(vm, HOG_OP_T8);
     vm->opt_parser = HOG_OP_T8;
     break;
+  case 'A':
+    hog_vm_push1(vm, HOG_OP_TSIZE);
+    vm->opt_parser = HOG_OP_TSIZE;
+    break;
   case 's':
     hog_vm_push1(vm, HOG_OP_T16);
     vm->opt_parser = HOG_OP_T16;
@@ -276,6 +280,7 @@ int hog_parse(struct hog_vm *vm) {
       memcpy(&n, &num, sizeof(n));
       hog_vm_pushn(vm, &n, len);
     } break;
+    case HOG_OP_TSIZE:
     case HOG_OP_TWORD: {
       hog_vm_push1(vm, HOG_OP_PUSH);
       size_t n = num;
