@@ -303,6 +303,9 @@ void hog_vm_puts(struct hog_vm *self) {
   case HOG_OP_FMT_UDEC:
     fprintf(self->stdout, "%li", val);
     break;
+  case HOG_OP_FMT_CHAR:
+    fprintf(self->stdout, "%c", (char)val);
+    break;
   case HOG_OP_FMT_F:
     if (len == 8) {
       fprintf(self->stdout, "%f", *dptr);
@@ -406,6 +409,7 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_FMT_BIN:
   case HOG_OP_FMT_F:
   case HOG_OP_FMT_STR:
+  case HOG_OP_FMT_CHAR:
     self->fmt = (int)op;
     break;
   case HOG_OP_PUSH:
@@ -518,11 +522,11 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     hog_vm_unary_op(self, !);
     break;
   case HOG_OP_READ: {
-    size_t len = 0;
-    hog_vm_popn(self, &len, sizeof(len));
+    size_t len = hog_vm_popt(self);
     int c = -1;
-    while ((c = fgetc(self->fin)) != -1) {
+    while (len > 0 && (c = fgetc(self->fin)) != -1) {
       hog_vm_push1(self, (char)c);
+      len--;
     }
   } break;
   default:
