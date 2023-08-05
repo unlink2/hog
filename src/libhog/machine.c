@@ -517,6 +517,14 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_NOT:
     hog_vm_unary_op(self, !);
     break;
+  case HOG_OP_READ: {
+    size_t len = 0;
+    hog_vm_popn(self, &len, sizeof(len));
+    int c = -1;
+    while ((c = fgetc(self->fin)) != -1) {
+      hog_vm_push1(self, (char)c);
+    }
+  } break;
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %x\n",
                  self->ip - 1, op);

@@ -132,4 +132,10 @@ void test_machine(void **state) {
     assert_vm("1");
     teardown();
   }
+  // read
+  {
+    setup(":main e", "main");
+    assert_vm("1234");
+    teardown();
+  }
 }
