@@ -6,6 +6,13 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
   struct arg_lit *verb = NULL;
   struct arg_lit *help = NULL;
   struct arg_lit *version = NULL;
+  struct arg_file *script = NULL;
+  struct arg_file *input = NULL;
+  struct arg_file *output = NULL;
+  struct arg_str *eval = NULL;
+
+  struct arg_lit *help_expr = NULL;
+  struct arg_lit *no_interactive = NULL;
 
   // arg end stores errors
   struct arg_end *end = NULL;
@@ -15,6 +22,16 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
       version =
           arg_litn(NULL, "version", 0, 1, "display version info and exit"),
       verb = arg_litn("v", "verbose", 0, HOG_LOG_LEVEL_DBG, "verbose output"),
+      script = arg_filen("s", "script", "SCRIPT", 0, 256,
+                         "Loads and executes a script"),
+      output = arg_file0("o", "output", "FILE", "Output file"),
+      eval = arg_strn("e", "eval", "EXPR", 0, 1024, "Eval an expression"),
+      help_expr = arg_lit0("e", "eval", "Show help for expressions"),
+      no_interactive = arg_lit0(
+          "t", "no-interactive",
+          "Do not drop to interactive mode after executing all scripts"),
+
+      input = arg_file0(NULL, NULL, "FILE", "Input file"),
       end = arg_end(20),
   };
 
