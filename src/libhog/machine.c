@@ -210,7 +210,7 @@ size_t hog_vm_pushn(struct hog_vm *self, void *data, size_t len) {
 
 void hog_vm_pusht(struct hog_vm *self, void *b) {
   size_t len = hog_vm_opt_len(self->opt);
-  hog_vm_pushn(self, &b, len);
+  hog_vm_pushn(self, b, len);
 }
 
 size_t hog_vm_readn(struct hog_vm *self, size_t src, int8_t *buffer,
@@ -365,6 +365,22 @@ void hog_vm_dup(struct hog_vm *self) {
   hog_vm_pushn(self, &buf, len);
 }
 
+// TODO: I know this is kind of ugly
+#define hog_vm_binary_op(self, op)                                             \
+  {                                                                            \
+    uint64_t l = hog_vm_popt(self);                                            \
+    uint64_t r = hog_vm_popt(self);                                            \
+    uint64_t v = l op r;                                                       \
+    hog_vm_pusht(self, &v);                                                    \
+  }
+
+#define hog_vm_unary_op(self, op)                                              \
+  {                                                                            \
+    uint64_t l = hog_vm_popt(self);                                            \
+    uint64_t v = op l;                                                         \
+    hog_vm_pusht(self, &v);                                                    \
+  }
+
 int8_t hog_vm_tick(struct hog_vm *self) {
   int8_t op = 0;
   self->ip += hog_vm_read1(self, self->ip, &op);
@@ -458,13 +474,49 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     }
     hog_vm_pushn(self, &target->addr, sizeof(size_t));
   } break;
-  case HOG_OP_ADD: {
-    int64_t l = hog_vm_popt(self);
-    int64_t r = hog_vm_popt(self);
-    int64_t v = l + r;
-    hog_vm_pusht(self, &v);
+  case HOG_OP_ADD:
+    hog_vm_binary_op(self, +);
     break;
-  }
+
+  case HOG_OP_SUB:
+    hog_vm_binary_op(self, -);
+    break;
+  case HOG_OP_MUL:
+    hog_vm_binary_op(self, *);
+    break;
+  case HOG_OP_DIV:
+    hog_vm_binary_op(self, /);
+    break;
+  case HOG_OP_BIT_AND:
+    hog_vm_binary_op(self, &);
+    break;
+  case HOG_OP_BIT_OR:
+    hog_vm_binary_op(self, |);
+    break;
+  case HOG_OP_BIT_XOR:
+    hog_vm_binary_op(self, ^);
+    break;
+  case HOG_OP_AND:
+    hog_vm_binary_op(self, &&);
+    break;
+  case HOG_OP_OR:
+    hog_vm_binary_op(self, ||);
+    break;
+  case HOG_OP_EQ:
+    hog_vm_binary_op(self, ==);
+    break;
+  case HOG_OP_GT:
+    hog_vm_binary_op(self, >);
+    break;
+  case HOG_OP_LT:
+    hog_vm_binary_op(self, <);
+    break;
+  case HOG_OP_BIT_NOT:
+    hog_vm_unary_op(self, ~);
+    break;
+  case HOG_OP_NOT:
+    hog_vm_unary_op(self, !);
+    break;
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %x\n",
                  self->ip - 1, op);

@@ -109,9 +109,27 @@ void test_machine(void **state) {
     teardown();
   }
   {
-    // runtime word lookup
+    // add
     setup(":main p10 p5 + %d . e", "main");
     assert_vm("15");
+    teardown();
+  }
+  {
+    // sub
+    setup(":main p5 p10 - %i . e", "main");
+    assert_vm("5");
+    teardown();
+  }
+  {
+    // not
+    setup(":main p1 ! %i . e", "main");
+    assert_vm("0");
+    teardown();
+  }
+  {
+    // not
+    setup(":main p0 ! %i . e", "main");
+    assert_vm("1");
     teardown();
   }
 }
