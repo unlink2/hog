@@ -142,7 +142,7 @@ void test_machine(void **state) {
   }
   {
     // ptr read and writes
-    setup(":main sp1234 Ap60 W Ap60 Y . e", "1234", "main");
+    setup(":main sp0x1234 Ap0x50 sW Ap0x50 sY %x . e", "1234", "main");
     assert_vm("1234");
     teardown();
   }
