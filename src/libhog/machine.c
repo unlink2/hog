@@ -529,6 +529,17 @@ int8_t hog_vm_tick(struct hog_vm *self) {
       len--;
     }
   } break;
+  case HOG_OP_READ_PTR: {
+    size_t target = 0;
+    size_t len = hog_vm_opt_len(self->opt);
+    hog_vm_popn(self, &target, sizeof(target));
+    if (!hog_vm_is_in_bounds(self->mem_size, target + len)) {
+      hog_err_fset(HOG_ERR_VM_MEM_OOB, "Out of bounds read of len %ld at %lx\n",
+                   len, target);
+      break;
+    }
+    // TODO: read values
+  } break;
   default:
     hog_err_fset(HOG_ERR_VM_INVAL_OP, "Invalid operation at %lx: %x\n",
                  self->ip - 1, op);

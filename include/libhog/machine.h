@@ -90,8 +90,8 @@ enum hog_ops {
   // pops an address from the stack
   // and a value from the stack
   // and reads/writes the value to the address
-  HOG_OP_READ_REL,
-  HOG_OP_WRITE_REL,
+  HOG_OP_READ_PTR,
+  HOG_OP_WRITE_PTR,
 
   // push and pop
   HOG_OP_PUSH,
