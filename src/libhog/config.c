@@ -9,5 +9,6 @@
 struct hog_config hog_config_init(void) {
   struct hog_config self;
   memset(&self, 0, sizeof(self));
+  self.log_level = HOG_LOG_LEVEL_INFO;
   return self;
 }

@@ -9,6 +9,8 @@ struct hog_config {
   size_t mem_size;
 
   const char *fin_path;
+
+  int log_level;
 };
 
 struct hog_config hog_config_init(void);
