@@ -1,7 +1,6 @@
 #ifndef ARG_H_
 #define ARG_H_
 
-#include "argtable2.h"
 #include <stdlib.h>
 
 #include "libhog/config.h"

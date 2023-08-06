@@ -8,9 +8,7 @@
 struct hog_config {
   size_t mem_size;
 
-  int stdin;
-  int stdout;
-  int fin;
+  const char *fin_path;
 };
 
 struct hog_config hog_config_init(void);

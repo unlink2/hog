@@ -9,10 +9,5 @@
 struct hog_config hog_config_init(void) {
   struct hog_config self;
   memset(&self, 0, sizeof(self));
-
-  self.stdin = fileno(stdin);
-  self.stdout = fileno(stdout);
-  self.fin = fileno(stdin);
-
   return self;
 }
