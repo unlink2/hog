@@ -4,6 +4,8 @@
 #include "libhog/log.h"
 
 struct hog_config hog_args_to_config(int argc, char **argv) {
+  struct hog_config cfg = hog_config_init();
+
   struct arg_lit *verb = NULL;
   struct arg_lit *help = NULL;
   struct arg_lit *version = NULL;
@@ -64,7 +66,7 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
   }
 
   if (verb->count > 0) {
-    hog_log_init(verb->count);
+    cfg.log_level = verb->count;
   } else {
     hog_log_init(HOG_LOG_LEVEL_ERROR);
   }
@@ -76,11 +78,11 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
     goto exit;
   }
 
-  struct hog_config cfg = hog_config_init();
-
   // map args to cfg data here
 
   arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
+
+  hog_config_build(&cfg);
 
   return cfg;
 exit:
