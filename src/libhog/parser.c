@@ -294,6 +294,12 @@ int hog_parse(struct hog_vm *vm) {
   case 'P':
     hog_vm_push1(vm, HOG_OP_POP);
     break;
+  case 'F':
+    hog_vm_push1(vm, HOG_OP_SP_FWD);
+    break;
+  case 'B':
+    hog_vm_push1(vm, HOG_OP_SP_BACK);
+    break;
   case 'D':
     hog_vm_push1(vm, HOG_OP_DUP);
     break;

@@ -97,6 +97,10 @@ enum hog_ops {
   // push and pop
   HOG_OP_PUSH,
   HOG_OP_POP,
+  // advances the sp by the lenght of the
+  // current type selected
+  HOG_OP_SP_FWD,
+  HOG_OP_SP_BACK,
 
   // lookup a word by name
   // pops a string's address of the stack

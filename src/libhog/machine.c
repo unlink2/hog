@@ -427,6 +427,12 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_POP:
     hog_vm_pop(self);
     break;
+  case HOG_OP_SP_FWD:
+    self->sp += hog_vm_opt_len(self->opt);
+    break;
+  case HOG_OP_SP_BACK:
+    self->sp -= hog_vm_opt_len(self->opt);
+    break;
   case HOG_OP_PUTS:
     hog_vm_puts(self);
     break;
