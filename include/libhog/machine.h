@@ -32,6 +32,11 @@ enum hog_ops {
   // where the string should be located
   HOG_OP_PUTS,
 
+  // works like puts for strings but will look for the string to put immediatly
+  // following
+  // the operation. Useful for single use prints
+  HOG_OP_PUTS_ABS,
+
   // pops a value off the stack and
   // pushes it back twice
   HOG_OP_DUP,

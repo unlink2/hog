@@ -146,4 +146,22 @@ void test_machine(void **state) {
     assert_vm("1234");
     teardown();
   }
+  {
+    // string print addr
+    setup(":test \"Test String\" :main %s wptest . e", "", "main");
+    assert_vm("Test String");
+    teardown();
+  }
+  {
+    // string print addr
+    setup("NNN :test \"Test String\" :main %s wptest . e", "", "main");
+    assert_vm("Test String");
+    teardown();
+  }
+  {
+    // string print addr
+    setup(":main O\"Test String\" e", "", "main");
+    assert_vm("Test String");
+    teardown();
+  }
 }

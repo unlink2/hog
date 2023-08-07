@@ -286,6 +286,18 @@ size_t hog_vm_write1(struct hog_vm *self, size_t dst, const int8_t *buffer) {
 
 void hog_vm_puts_int(struct hog_vm *self, int64_t val) {}
 
+size_t hog_vm_putstr(struct hog_vm *self, size_t val) {
+  char c = '\0';
+  size_t addr = val;
+  while (hog_vm_is_in_bounds(self->mem_size, addr) &&
+         (hog_vm_read1(self, addr, (int8_t *)&c) != 0) && c != '\0') {
+    fprintf(self->stdout, "%c", c);
+    addr++;
+  }
+
+  return addr - val;
+}
+
 void hog_vm_puts(struct hog_vm *self) {
   size_t len = hog_vm_opt_len(self->opt);
   uint64_t val = hog_vm_popt(self);
@@ -322,8 +334,7 @@ void hog_vm_puts(struct hog_vm *self) {
     }
     break;
   case HOG_OP_FMT_STR:
-    // TODO: string output
-    hog_warn("String fmt is not implemented!");
+    hog_vm_putstr(self, val);
     break;
   default:
     hog_error("Invalid puts fmt\n");
@@ -435,6 +446,9 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     break;
   case HOG_OP_PUTS:
     hog_vm_puts(self);
+    break;
+  case HOG_OP_PUTS_ABS:
+    self->ip += hog_vm_putstr(self, self->ip);
     break;
   case HOG_OP_DUP:
     hog_vm_dup(self);

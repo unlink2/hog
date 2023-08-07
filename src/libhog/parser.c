@@ -321,6 +321,9 @@ int hog_parse(struct hog_vm *vm) {
   case '.':
     hog_vm_push1(vm, HOG_OP_PUTS);
     break;
+  case 'O':
+    hog_vm_push1(vm, HOG_OP_PUTS_ABS);
+    break;
   case '%':
     hog_parse_fmt(vm);
     break;
