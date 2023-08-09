@@ -6,6 +6,7 @@
 
 size_t hog_tok_next(FILE *f, char *buffer, size_t len, FILE *tmp);
 
+void hog_parse_from(struct hog_vm *vm, FILE *f);
 void hog_parse_all(struct hog_vm *vm);
 
 // reads from vm->stdin until \n is read

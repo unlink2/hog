@@ -155,6 +155,13 @@ size_t hog_parse_word(struct hog_vm *vm, FILE *tmp) {
   return map->addr;
 }
 
+void hog_parse_from(struct hog_vm *vm, FILE *f) {
+  FILE *stdin_before = vm->stdin;
+  vm->stdin = f;
+  hog_parse_all(vm);
+  vm->stdin = stdin_before;
+}
+
 void hog_parse_all(struct hog_vm *vm) {
   FILE *tmp = tmpfile();
   while (hog_parse(vm, tmp) != -1 && !hog_err()) {
