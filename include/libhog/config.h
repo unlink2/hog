@@ -10,6 +10,8 @@ struct hog_config {
 
   const char *fin_path;
 
+  struct hog_vm *vm;
+
   int log_level;
 };
 

@@ -2,6 +2,7 @@
 #include "arg.h"
 #include "libhog/config.h"
 #include "libhog/log.h"
+#include "libhog/machine.h"
 
 struct hog_config hog_args_to_config(int argc, char **argv) {
   struct hog_config cfg = hog_config_init();
@@ -77,6 +78,21 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
     exitcode = 1;
     goto exit;
   }
+
+  FILE *finput = stdin;
+  // TODO: load scripts. allow setting stdin file
+
+  FILE *foutput = stdout;
+  if (output->count) {
+    foutput = fopen(output->filename[0], "we");
+  }
+
+  FILE *fin = stdin;
+  if (input->count) {
+    fin = fopen(input->filename[0], "re");
+  }
+
+  *cfg.vm = hog_vm_init(HOG_VM_DEFAULT_MEM_SIZE, finput, foutput, fin);
 
   // map args to cfg data here
 

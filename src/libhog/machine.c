@@ -617,6 +617,20 @@ size_t hog_vm_main(struct hog_vm *self, const char *start_word) {
   return hog_vm_tick_all(self);
 }
 
+void hog_vm_close_files(struct hog_vm *self) {
+  if (self->fin != stdin) {
+    fclose(self->fin);
+  }
+
+  if (self->stdin != stdin) {
+    fclose(self->stdin);
+  }
+
+  if (self->stdout != stdout) {
+    fclose(self->stdout);
+  }
+}
+
 void hog_vm_free(struct hog_vm *self) {
   for (size_t i = 0; i < self->words_len; i++) {
     hog_word_map_free(&self->words[i]);

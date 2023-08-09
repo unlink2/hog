@@ -212,6 +212,7 @@ size_t hog_vm_main(struct hog_vm *self, const char *start_word);
 
 void hog_vm_dbg_dump(struct hog_vm *self);
 
+void hog_vm_close_files(struct hog_vm *self);
 void hog_vm_free(struct hog_vm *self);
 
 #endif
