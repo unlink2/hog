@@ -10,29 +10,32 @@ void test_tok(void **state) {
   fputs("test   tokens  \nNext", f);
   rewind(f);
 
+  FILE *tmp = tmpfile();
+
   const char buffer[64];
 
-  size_t n = hog_tok_next(f, (char *)buffer, 64);
+  size_t n = hog_tok_next(f, (char *)buffer, 64, tmp);
   assert_string_equal("test", buffer);
   assert_int_equal(n, 4);
 
-  n = hog_tok_next(f, (char *)buffer, 64);
+  n = hog_tok_next(f, (char *)buffer, 64, tmp);
   assert_string_equal("tokens", buffer);
   assert_int_equal(n, 6);
 
-  n = hog_tok_next(f, (char *)buffer, 64);
+  n = hog_tok_next(f, (char *)buffer, 64, tmp);
   assert_string_equal("", buffer);
   assert_int_equal(0, n);
 
-  n = hog_tok_next(f, (char *)buffer, 64);
+  n = hog_tok_next(f, (char *)buffer, 64, tmp);
   assert_string_equal("Next", buffer);
   assert_int_equal(n, 4);
 
-  n = hog_tok_next(f, (char *)buffer, 64);
+  n = hog_tok_next(f, (char *)buffer, 64, tmp);
   assert_string_equal("", buffer);
   assert_int_equal(0, n);
 
   fclose(f);
+  fclose(tmp);
 }
 
 #define setup(usr_input)                                                       \
@@ -51,19 +54,25 @@ void test_parser(void **state) {
   {
     setup("\"\\\"Test String\\\"\"");
 
-    hog_parse(&vm);
+    FILE *tmp = tmpfile();
+
+    hog_parse(&vm, tmp);
     assert_false(hog_err());
     assert_string_equal("\"Test String\"", (char *)vm.mem);
 
     teardown();
+    fclose(tmp);
   }
   {
     setup("\"\\\"Test\\\"");
 
-    hog_parse(&vm);
+    FILE *tmp = tmpfile();
+
+    hog_parse(&vm, tmp);
     assert_int_equal(HOG_ERR_PARSE_UNTERMINATED_STRING, hog_err());
 
     teardown();
+    fclose(tmp);
   }
   {
     const int8_t expected = 123;

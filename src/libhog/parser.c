@@ -6,12 +6,18 @@
 #include <stdio.h>
 #include <string.h>
 
-size_t hog_tok_next(FILE *f, char *buffer, size_t len) {
+int hog_fgetc(FILE *i, FILE *tmp) {
+  int c = fgetc(i);
+  fputc(c, tmp);
+  return c;
+}
+
+size_t hog_tok_next(FILE *f, char *buffer, size_t len, FILE *tmp) {
   int c = '\0';
   size_t written = 0;
   size_t read_res = 0;
   buffer[0] = '\0';
-  while ((c = fgetc(f)) != -1) {
+  while ((c = hog_fgetc(f, tmp)) != -1) {
     if (read_res == -1) {
       return read_res;
     }
@@ -31,11 +37,11 @@ size_t hog_tok_next(FILE *f, char *buffer, size_t len) {
   return written;
 }
 
-int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
+int64_t hog_parse_number(struct hog_vm *vm, size_t len, FILE *tmp) {
   const size_t buffer_len = 128;
   char buffer[buffer_len];
 
-  size_t written = hog_tok_next(vm->stdin, (char *)&buffer, buffer_len);
+  size_t written = hog_tok_next(vm->stdin, (char *)&buffer, buffer_len, tmp);
 
   int64_t val = 0;
 
@@ -75,8 +81,8 @@ int64_t hog_parse_number(struct hog_vm *vm, size_t len) {
   return val;
 }
 
-void hog_parse_fmt(struct hog_vm *vm) {
-  int op = fgetc(vm->stdin);
+void hog_parse_fmt(struct hog_vm *vm, FILE *tmp) {
+  int op = hog_fgetc(vm->stdin, tmp);
 
   switch (op) {
   case 's':
@@ -107,10 +113,10 @@ void hog_parse_fmt(struct hog_vm *vm) {
 }
 
 // parse a word and push its address
-void hog_parse_def_word(struct hog_vm *vm) {
+void hog_parse_def_word(struct hog_vm *vm, FILE *tmp) {
   const size_t buf_len = 64;
   char buf[buf_len];
-  hog_tok_next(vm->stdin, buf, buf_len);
+  hog_tok_next(vm->stdin, buf, buf_len, tmp);
 
   if (hog_err()) {
     return;
@@ -119,10 +125,10 @@ void hog_parse_def_word(struct hog_vm *vm) {
 }
 
 // parse a word and undef its address
-void hog_parse_undef_word(struct hog_vm *vm) {
+void hog_parse_undef_word(struct hog_vm *vm, FILE *tmp) {
   const size_t buf_len = 64;
   char buf[buf_len];
-  hog_tok_next(vm->stdin, buf, buf_len);
+  hog_tok_next(vm->stdin, buf, buf_len, tmp);
 
   if (hog_err()) {
     return;
@@ -130,10 +136,10 @@ void hog_parse_undef_word(struct hog_vm *vm) {
   hog_vm_undef(vm, vm->sp, buf);
 }
 
-size_t hog_parse_word(struct hog_vm *vm) {
+size_t hog_parse_word(struct hog_vm *vm, FILE *tmp) {
   const size_t buf_len = 64;
   char buf[buf_len];
-  hog_tok_next(vm->stdin, buf, buf_len);
+  hog_tok_next(vm->stdin, buf, buf_len, tmp);
 
   if (hog_err()) {
     return 0;
@@ -150,34 +156,36 @@ size_t hog_parse_word(struct hog_vm *vm) {
 }
 
 void hog_parse_all(struct hog_vm *vm) {
-  while (hog_parse(vm) != -1 && !hog_err()) {
+  FILE *tmp = tmpfile();
+  while (hog_parse(vm, tmp) != -1 && !hog_err()) {
   }
+  fclose(tmp);
 }
 
-int hog_parse(struct hog_vm *vm) {
+int hog_parse(struct hog_vm *vm, FILE *tmp) {
   // save original sp so we can revert in case of error
   size_t start_sp = vm->sp;
 
-  int op = fgetc(vm->stdin);
+  int op = hog_fgetc(vm->stdin, tmp);
 
   while (isspace(op)) {
-    op = fgetc(vm->stdin);
+    op = hog_fgetc(vm->stdin, tmp);
   }
 
   // filter comments
   if (op == '#') {
     while (op != '\n' && op != '\0' && op != -1) {
-      op = fgetc(vm->stdin);
+      op = hog_fgetc(vm->stdin, tmp);
     }
     return '#';
   }
 
   switch (op) {
   case ':':
-    hog_parse_def_word(vm);
+    hog_parse_def_word(vm, tmp);
     break;
   case 'U':
-    hog_parse_undef_word(vm);
+    hog_parse_undef_word(vm, tmp);
     break;
   case 'Y':
     hog_vm_push1(vm, HOG_OP_READ_PTR);
@@ -241,9 +249,9 @@ int hog_parse(struct hog_vm *vm) {
     int64_t num = 0;
 
     if (vm->opt_parser == HOG_OP_TWORD) {
-      num = (int64_t)hog_parse_word(vm);
+      num = (int64_t)hog_parse_word(vm, tmp);
     } else {
-      num = hog_parse_number(vm, len);
+      num = hog_parse_number(vm, len, tmp);
     }
 
     switch (vm->opt_parser) {
@@ -325,7 +333,7 @@ int hog_parse(struct hog_vm *vm) {
     hog_vm_push1(vm, HOG_OP_PUTS_ABS);
     break;
   case '%':
-    hog_parse_fmt(vm);
+    hog_parse_fmt(vm, tmp);
     break;
   case '!':
     hog_vm_push1(vm, HOG_OP_NOT);
@@ -342,7 +350,7 @@ int hog_parse(struct hog_vm *vm) {
   case '"': {
     // has to start with "
     int c = op;
-    while ((c = fgetc(vm->stdin)) != -1 && c != '\0' && c != '"') {
+    while ((c = hog_fgetc(vm->stdin, tmp)) != -1 && c != '\0' && c != '"') {
       // handle escaping
       if (c == '\\') {
         c = fgetc(vm->stdin);
