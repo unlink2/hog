@@ -1,8 +1,10 @@
 #include "argtable2.h"
 #include "arg.h"
 #include "libhog/config.h"
+#include "libhog/error.h"
 #include "libhog/log.h"
 #include "libhog/machine.h"
+#include "libhog/parser.h"
 
 struct hog_config hog_args_to_config(int argc, char **argv) {
   struct hog_config cfg = hog_config_init();
@@ -81,6 +83,26 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
 
   FILE *finput = stdin;
   // TODO: load scripts. allow setting stdin file
+  for (size_t i = 0; i < script->count; i++) {
+    FILE *f = NULL;
+
+    if (strncmp(script->filename[i], "-", 1) == 0) {
+      f = stdin;
+    } else {
+      fopen(script->filename[i], "re");
+    }
+    if (!f) {
+      hog_errno();
+      hog_error("No such file '%s'\n", script->filename[i]);
+      goto exit;
+    }
+    hog_parse_from(cfg.vm, f);
+    if (hog_err()) {
+      goto exit;
+    }
+
+    fclose(f);
+  }
 
   FILE *foutput = stdout;
   if (output->count) {
