@@ -458,6 +458,9 @@ int8_t hog_vm_tick(struct hog_vm *self) {
   case HOG_OP_JMP_IF: {
     int64_t val = hog_vm_popt(self);
     if (!val) {
+      // stil pop address even if branch is not taken
+      size_t target = 0;
+      hog_vm_popn(self, &target, sizeof(target));
       break;
     }
   }

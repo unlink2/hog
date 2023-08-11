@@ -20,6 +20,14 @@
   O "\n"
   ;
 
+:factorial_end
+  ;
+:factorial
+  sp1 = # compare top of stack to 1
+  wp factorial_end J  
+  ;
+
+
 :main
   # O will output the string following it 
   O "Test String\n" 
