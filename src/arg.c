@@ -82,6 +82,19 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
   }
 
   FILE *finput = stdin;
+
+  FILE *foutput = stdout;
+  if (output->count) {
+    foutput = fopen(output->filename[0], "we");
+  }
+
+  FILE *fin = stdin;
+  if (input->count) {
+    fin = fopen(input->filename[0], "re");
+  }
+
+  *cfg.vm = hog_vm_init(HOG_VM_DEFAULT_MEM_SIZE, finput, foutput, fin);
+
   // TODO: load scripts. allow setting stdin file
   for (size_t i = 0; i < script->count; i++) {
     FILE *f = NULL;
@@ -89,7 +102,7 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
     if (strncmp(script->filename[i], "-", 1) == 0) {
       f = stdin;
     } else {
-      fopen(script->filename[i], "re");
+      f = fopen(script->filename[i], "re");
     }
     if (!f) {
       hog_errno();
@@ -103,18 +116,6 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
 
     fclose(f);
   }
-
-  FILE *foutput = stdout;
-  if (output->count) {
-    foutput = fopen(output->filename[0], "we");
-  }
-
-  FILE *fin = stdin;
-  if (input->count) {
-    fin = fopen(input->filename[0], "re");
-  }
-
-  *cfg.vm = hog_vm_init(HOG_VM_DEFAULT_MEM_SIZE, finput, foutput, fin);
 
   // map args to cfg data here
 

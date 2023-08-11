@@ -361,6 +361,48 @@ int hog_parse(struct hog_vm *vm, FILE *tmp) {
       // handle escaping
       if (c == '\\') {
         c = fgetc(vm->stdin);
+        switch (c) {
+        case 'a':
+          c = '\a';
+          break;
+        case 'b':
+          c = '\b';
+          break;
+        case 'e':
+          c = '\e';
+          break;
+        case 'f':
+          c = '\f';
+          break;
+        case 'n':
+          c = '\n';
+          break;
+        case 'r':
+          c = '\r';
+          break;
+        case 't':
+          c = '\t';
+          break;
+        case 'v':
+          c = '\v';
+          break;
+        case '\\':
+          c = '\\';
+          break;
+        case '\'':
+          c = '\'';
+          break;
+        case '\"':
+          c = '\"';
+          break;
+        case '\?':
+          c = '\?';
+          break;
+        case -1:
+          break;
+        default:
+          hog_warn("Unknown escape sequence: \\%c\n", c);
+        }
         if (c == -1) {
           break;
         }
