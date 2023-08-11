@@ -95,6 +95,13 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
 
   *cfg.vm = hog_vm_init(HOG_VM_DEFAULT_MEM_SIZE, finput, foutput, fin);
 
+  for (size_t i = 0; i < eval->count; i++) {
+    hog_parse_eval(cfg.vm, eval->sval[i]);
+    if (hog_err()) {
+      goto exit;
+    }
+  }
+
   // TODO: load scripts. allow setting stdin file
   for (size_t i = 0; i < script->count; i++) {
     FILE *f = NULL;
