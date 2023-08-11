@@ -42,6 +42,8 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
   self.ra_stack = malloc(self.ra_len * sizeof(size_t));
   memset(self.ra_stack, 0, sizeof(size_t) * self.ra_len);
 
+  self.parser_tmp = tmpfile();
+
   return self;
 }
 
@@ -638,6 +640,8 @@ void hog_vm_free(struct hog_vm *self) {
   if (self->words) {
     free(self->words);
   }
+
+  fclose(self->parser_tmp);
 
   free(self->mem);
   free(self->ra_stack);

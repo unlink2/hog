@@ -165,6 +165,9 @@ struct hog_vm {
   // fin is the target file buffer
   FILE *fin;
 
+  // used for eval
+  FILE *parser_tmp;
+
   // registers
   size_t sp; // stack pointer
   size_t ip; // instruction pointer

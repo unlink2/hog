@@ -37,7 +37,6 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
       no_interactive = arg_lit0(
           "t", "no-interactive",
           "Do not drop to interactive mode after executing all scripts"),
-
       input = arg_file0(NULL, NULL, "FILE", "Input file"),
       end = arg_end(20),
   };
@@ -81,6 +80,7 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
     goto exit;
   }
 
+  // TODO: how do we redirect stdin?
   FILE *finput = stdin;
 
   FILE *foutput = stdout;
@@ -102,7 +102,6 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
     }
   }
 
-  // TODO: load scripts. allow setting stdin file
   for (size_t i = 0; i < script->count; i++) {
     FILE *f = NULL;
 

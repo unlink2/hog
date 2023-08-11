@@ -1,4 +1,5 @@
 #include "libhog/parser.h"
+#include "libhog/color.h"
 #include "libhog/error.h"
 #include "libhog/log.h"
 #include "libhog/machine.h"
@@ -44,9 +45,6 @@ int hog_parse_unescape(int c) {
     break;
   case 'b':
     c = '\b';
-    break;
-  case 'e':
-    c = '\e'; // NOLINT
     break;
   case 'f':
     c = '\f';
@@ -204,11 +202,12 @@ size_t hog_parse_word(struct hog_vm *vm, FILE *tmp) {
 }
 
 void hog_parse_eval(struct hog_vm *vm, const char *eval) {
-  FILE *tmp = tmpfile();
+  FILE *tmp = vm->parser_tmp;
+  rewind(tmp);
   fputs(eval, tmp);
+  fputc('\0', tmp);
   rewind(tmp);
   hog_parse_from(vm, tmp);
-  fclose(tmp);
 }
 
 void hog_parse_from(struct hog_vm *vm, FILE *f) {
@@ -220,7 +219,7 @@ void hog_parse_from(struct hog_vm *vm, FILE *f) {
 
 void hog_parse_all(struct hog_vm *vm) {
   FILE *tmp = tmpfile();
-  while (hog_parse(vm, tmp) != -1 && !hog_err()) {
+  while (hog_parse(vm, tmp) > 0 && !hog_err()) {
   }
   fclose(tmp);
 }
@@ -476,6 +475,7 @@ int hog_parse(struct hog_vm *vm, FILE *tmp) {
     puts("Command reference...\n");
     break;
   case -1:
+  case '\0':
     break;
   default:
     hog_err_fset(HOG_ERR_PARSE_UNKNOWN_OP, "Op '%c' was not found!\n", op);
@@ -489,5 +489,25 @@ int hog_parse(struct hog_vm *vm, FILE *tmp) {
   return op;
 error:
   vm->sp = start_sp;
+
+  // TODO: print and underline current error content
+  // around where it occured
+  // for now just dump entire file...
+  size_t offset = ftell(vm->stdin);
+  int c = '\0';
+  rewind(vm->stdin);
+  size_t count = 0;
+
+  hog_error("File dump:\n");
+  while ((c = fgetc(vm->stdin)) != -1) {
+    if (count == offset) {
+      hog_term_escape(stderr, HOG_ANSI_COLOR_RED);
+    }
+    hog_error("%c", c);
+    hog_term_escape(stderr, HOG_ANSI_COLOR_RESET);
+    count++;
+  }
+  hog_error("\n");
+
   return 0;
 }
