@@ -499,7 +499,7 @@ error:
   size_t count = 0;
 
   hog_error("File dump:\n");
-  while ((c = fgetc(vm->stdin)) != -1) {
+  while ((c = fgetc(vm->stdin)) > 0) {
     if (count == offset) {
       hog_term_escape(stderr, HOG_ANSI_COLOR_RED);
     }
