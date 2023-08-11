@@ -37,6 +37,52 @@ size_t hog_tok_next(FILE *f, char *buffer, size_t len, FILE *tmp) {
   return written;
 }
 
+int hog_parse_unescape(int c) {
+  switch (c) {
+  case 'a':
+    c = '\a';
+    break;
+  case 'b':
+    c = '\b';
+    break;
+  case 'e':
+    c = '\e'; // NOLINT
+    break;
+  case 'f':
+    c = '\f';
+    break;
+  case 'n':
+    c = '\n';
+    break;
+  case 'r':
+    c = '\r';
+    break;
+  case 't':
+    c = '\t';
+    break;
+  case 'v':
+    c = '\v';
+    break;
+  case '\\':
+    c = '\\';
+    break;
+  case '\'':
+    c = '\'';
+    break;
+  case '\"':
+    c = '\"';
+    break;
+  case '\?':
+    c = '\?';
+    break;
+  case -1:
+    break;
+  default:
+    hog_warn("Unknown escape sequence: \\%c\n", c);
+  }
+  return c;
+}
+
 int64_t hog_parse_number(struct hog_vm *vm, size_t len, FILE *tmp) {
   const size_t buffer_len = 128;
   char buffer[buffer_len];
@@ -51,12 +97,14 @@ int64_t hog_parse_number(struct hog_vm *vm, size_t len, FILE *tmp) {
     size_t index = 1;
     if (buffer[1] == '\\') {
       index = 2;
+      val = hog_parse_unescape(buffer[index]);
+    } else {
+      val = (int64_t)buffer[index];
     }
     if (buffer[index + 1] != '\'' || written > index + 2) {
       hog_err_fset(HOG_ERR_PARSE_UNTERMINATED_CHAR, "Unterminated char\n");
       return 0;
     }
-    val = (int64_t)buffer[index];
   } else if (strstr(buffer, ".") != NULL) {
     // float
     double fval = strtof(buffer, &end);
@@ -360,49 +408,8 @@ int hog_parse(struct hog_vm *vm, FILE *tmp) {
     while ((c = hog_fgetc(vm->stdin, tmp)) != -1 && c != '\0' && c != '"') {
       // handle escaping
       if (c == '\\') {
-        c = fgetc(vm->stdin);
-        switch (c) {
-        case 'a':
-          c = '\a';
-          break;
-        case 'b':
-          c = '\b';
-          break;
-        case 'e':
-          c = '\e';
-          break;
-        case 'f':
-          c = '\f';
-          break;
-        case 'n':
-          c = '\n';
-          break;
-        case 'r':
-          c = '\r';
-          break;
-        case 't':
-          c = '\t';
-          break;
-        case 'v':
-          c = '\v';
-          break;
-        case '\\':
-          c = '\\';
-          break;
-        case '\'':
-          c = '\'';
-          break;
-        case '\"':
-          c = '\"';
-          break;
-        case '\?':
-          c = '\?';
-          break;
-        case -1:
-          break;
-        default:
-          hog_warn("Unknown escape sequence: \\%c\n", c);
-        }
+        c = hog_parse_unescape(fgetc(vm->stdin));
+
         if (c == -1) {
           break;
         }
