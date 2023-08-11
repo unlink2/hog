@@ -11,6 +11,7 @@ struct hog_config {
   const char *fin_path;
 
   struct hog_vm *vm;
+  const char *main;
 
   int log_level;
 };

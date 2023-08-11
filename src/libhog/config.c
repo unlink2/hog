@@ -14,6 +14,7 @@ struct hog_config hog_config_init(void) {
   memset(&self, 0, sizeof(self));
   self.log_level = HOG_LOG_LEVEL_INFO;
   self.vm = &gvm;
+  self.main = "main";
   return self;
 }
 

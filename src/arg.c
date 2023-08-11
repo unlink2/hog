@@ -16,6 +16,7 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
   struct arg_file *input = NULL;
   struct arg_file *output = NULL;
   struct arg_str *eval = NULL;
+  struct arg_str *main = NULL;
 
   struct arg_lit *help_expr = NULL;
   struct arg_lit *no_interactive = NULL;
@@ -38,6 +39,7 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
           "t", "no-interactive",
           "Do not drop to interactive mode after executing all scripts"),
       input = arg_file0(NULL, NULL, "FILE", "Input file"),
+      main = arg_str0(NULL, NULL, "ENTRY-POINT", "Select entry point function"),
       end = arg_end(20),
   };
 
@@ -78,6 +80,10 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
     printf("Try '%s --help' for more information.\n", progname);
     exitcode = 1;
     goto exit;
+  }
+
+  if (main->count) {
+    cfg.main = main->sval[0];
   }
 
   // TODO: how do we redirect stdin?
