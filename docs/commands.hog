@@ -12,6 +12,14 @@
   O "\n"
   ;
 
+:sub_float
+  fp 5
+  fp 2.5
+  - 
+  %f .
+  O "\n"
+  ;
+
 :main
   # O will output the string following it 
   O "Test String\n" 
@@ -28,6 +36,12 @@
   wp test c 
   
   wp 5_plus_5_add c
+  
+  # floats
+  fp3.14
+  %f . O"\n"
+
+  wp sub_float c
 
   e
 
