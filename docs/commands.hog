@@ -1,0 +1,33 @@
+# this is an example hog script
+# run with 
+# hog --script docs/commands.hog
+:test 
+  O "This is a call\n" ; # ; or r will return 
+
+:5_plus_5_add
+  bp 5
+  bp 5
+  + 
+  %d .
+  O "\n"
+  ;
+
+:main
+  # O will output the string following it 
+  O "Test String\n" 
+  O "Test String2\n\n" 
+  
+  # byte push 
+  bp 127
+
+  # format as integer 
+  %d . # . prints the current format 
+  O "\n" # print a new line 
+  
+  # push the word 'test' and call (c)
+  wp test c 
+  
+  wp 5_plus_5_add c
+
+  e
+
