@@ -493,7 +493,7 @@ error:
   // TODO: print and underline current error content
   // around where it occured
   // for now just dump entire file...
-  size_t offset = ftell(vm->stdin);
+  size_t offset = ftell(vm->stdin) - 1;
   int c = '\0';
   rewind(vm->stdin);
   size_t count = 0;
