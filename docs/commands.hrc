@@ -26,8 +26,12 @@
   ;
 :factorial
   sp1 = # compare top of stack to 1
-  wp factorial_end J  
-  ;
+  wp factorial_end J # jump if true 
+
+  ip 1
+  -
+  wp factorial c # call always
+  *
 
 
 :main
@@ -52,6 +56,10 @@
   %f . O"\n"
 
   wp sub_float c
+
+  ip 5
+  # wp factorial c
+  %d . O"\n"
 
   e
 
