@@ -31,6 +31,8 @@ enum hog_error {
   HOG_ERR_PARSE_UNTERMINATED_CHAR,
   HOG_ERR_INVAL_NUM,
 
+  HOG_ERR_NO_RC,
+
   // errno is stored in err_detail
   HOG_ERRNO
 };

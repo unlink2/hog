@@ -1,4 +1,6 @@
 # this is an example hog script (.hrc)
+# Hog will automatically load a filed called init.hrc in 
+# the current directory if no other script is provided
 # run with 
 # hog --script docs/commands.hog
 :test 

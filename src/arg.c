@@ -6,6 +6,24 @@
 #include "libhog/machine.h"
 #include "libhog/parser.h"
 
+#define HOG_DEFAULT_RC "./init.hrc"
+
+FILE *hog_open_in(const char *path) {
+  FILE *f = NULL;
+  if (strncmp(path, "-", 1) == 0) {
+    f = stdin;
+  } else {
+    f = fopen(path, "re");
+  }
+  return f;
+}
+
+void hog_close_in(FILE *f) {
+  if (f && f != stdin) {
+    fclose(f);
+  }
+}
+
 struct hog_config hog_args_to_config(int argc, char **argv) {
   struct hog_config cfg = hog_config_init();
 
@@ -30,7 +48,9 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
           arg_litn(NULL, "version", 0, 1, "display version info and exit"),
       verb = arg_litn("v", "verbose", 0, HOG_LOG_LEVEL_DBG, "Verbose output"),
       script = arg_filen("s", "script", "SCRIPT", 0, 256,
-                         "Load and execute a script"),
+                         "Load and execute a script. If no other script is "
+                         "provided " HOG_DEFAULT_RC
+                         " will be loaded from the current working directory."),
       output = arg_file0("o", "output", "FILE", "Output file"),
       eval = arg_strn("e", "eval", "EXPR", 0, 1024, "Eval an expression"),
       help_expr =
@@ -109,13 +129,8 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
   }
 
   for (size_t i = 0; i < script->count; i++) {
-    FILE *f = NULL;
+    FILE *f = hog_open_in(script->filename[i]);
 
-    if (strncmp(script->filename[i], "-", 1) == 0) {
-      f = stdin;
-    } else {
-      f = fopen(script->filename[i], "re");
-    }
     if (!f) {
       hog_errno();
       hog_error("No such file '%s'\n", script->filename[i]);
@@ -126,7 +141,24 @@ struct hog_config hog_args_to_config(int argc, char **argv) {
       goto exit;
     }
 
-    fclose(f);
+    hog_close_in(f);
+  }
+
+  // load default rc if no other script is supplied
+  if (script->count == 0) {
+    FILE *f = hog_open_in(HOG_DEFAULT_RC);
+    if (!f) {
+      hog_errno();
+      hog_error("No script porvided! Please provide a script using --script "
+                "or the default script '" HOG_DEFAULT_RC "'\n");
+      goto exit;
+    }
+    hog_parse_from(cfg.vm, f);
+    if (hog_err()) {
+      goto exit;
+    }
+
+    hog_close_in(f);
   }
 
   // map args to cfg data here
