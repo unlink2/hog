@@ -1,4 +1,4 @@
-# this is an example hog script
+# this is an example hog script (.hrc)
 # run with 
 # hog --script docs/commands.hog
 :test 
