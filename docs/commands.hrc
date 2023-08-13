@@ -3,6 +3,38 @@
 # the current directory if no other script is provided
 # run with 
 # hog --script docs/commands.hog
+
+:main
+  # O will output the string following it 
+  O "Test String\n" 
+  O "Test String2\n\n" 
+  
+  # byte push 
+  bp 127
+
+  # format as integer 
+  %d . # . prints the current format 
+  O "\n" # print a new line 
+  
+  # push the word 'test' and call (c)
+  wp test c 
+  
+  wp 5_plus_5_add c
+  
+  # floats
+  fp3.14
+  %f . O"\n"
+
+  wp sub_float c
+
+  ip 5
+  # wp factorial c
+  %d . O"\n"
+
+  e
+
+
+
 :test 
   O "This is a call\n" ; # ; or r will return 
 
@@ -33,33 +65,4 @@
   wp factorial c # call always
   *
 
-
-:main
-  # O will output the string following it 
-  O "Test String\n" 
-  O "Test String2\n\n" 
-  
-  # byte push 
-  bp 127
-
-  # format as integer 
-  %d . # . prints the current format 
-  O "\n" # print a new line 
-  
-  # push the word 'test' and call (c)
-  wp test c 
-  
-  wp 5_plus_5_add c
-  
-  # floats
-  fp3.14
-  %f . O"\n"
-
-  wp sub_float c
-
-  ip 5
-  # wp factorial c
-  %d . O"\n"
-
-  e
 
