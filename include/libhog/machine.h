@@ -156,6 +156,8 @@ struct hog_vm {
   // when a word was not resolved it is marked as deferred
   // a re-lookup is attempted whenever a new word is defined
   // the address is the location of the deferred word's missing address
+  // all deferred words have to be resolved before the vm starts execution
+  // otherwise an error is raised
   struct hog_word_map *words_deferred;
   size_t words_deferred_len;
 
