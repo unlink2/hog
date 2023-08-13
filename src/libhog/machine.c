@@ -47,6 +47,8 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
   return self;
 }
 
+bool hog_vm_is_in_bounds(size_t max_len, size_t i) { return i <= max_len; }
+
 void hog_vm_def(struct hog_vm *self, size_t addr, const char *word) {
   // TODO: avoid realloc every call...
   size_t new_len = self->words_len + 1;
@@ -82,6 +84,69 @@ struct hog_word_map *hog_vm_lookup(struct hog_vm *self, const char *word) {
   return NULL;
 }
 
+void hog_vm_word_deferr(struct hog_vm *self, const char *word, size_t at_addr) {
+  // TODO: avoid realloc every call...
+  size_t new_len = self->words_deferred_len + 1;
+  struct hog_word_map *new =
+      realloc(self->words_deferred, new_len * sizeof(struct hog_word_map));
+
+  if (!new) {
+    hog_error("Failed to resize deferred word list\n");
+    hog_errno();
+    return;
+  }
+
+  self->words_deferred_len = new_len;
+  self->words_deferred = new;
+  self->words_deferred[new_len - 1] = hog_word_map_init(at_addr, word);
+}
+
+void hog_vm_word_try_deferred_word_lookup(struct hog_vm *self) {
+  for (size_t i = 0; i < self->words_deferred_len; i++) {
+    struct hog_word_map *deferred = &self->words_deferred[i];
+    struct hog_word_map *word = hog_vm_lookup(self, deferred->word);
+
+    if (!word) {
+      continue;
+    }
+
+    // TODO: actually remove deferred items that were found
+    deferred->word[0] = '\0';
+
+    if (!hog_vm_is_in_bounds(self->mem_size,
+                             deferred->addr + sizeof(int64_t))) {
+      hog_err_fset(HOG_ERR_VM_MEM_OOB,
+                   "Deferred address %lx is out of bounds!\n", deferred->addr);
+      return;
+    }
+    int64_t *at = (void *)&self->mem[deferred->addr];
+    *at = (int64_t)word->addr;
+  }
+}
+
+bool hog_vm_has_deferred(struct hog_vm *self) {
+  if (!self->words_deferred) {
+    return false;
+  }
+
+  bool found = false;
+  for (size_t i = 0; i < self->words_deferred_len; i++) {
+    struct hog_word_map *deferred = &self->words_deferred[i];
+    if (deferred->word[0] != '\0') {
+      hog_err_fset(HOG_ERR_PARSE_WORD_NOT_FOUND, "Unresolved word: '%s'\n",
+                   deferred->word);
+      found = true;
+    }
+
+    hog_word_map_free(deferred);
+  }
+  self->words_deferred_len = 0;
+  free(self->words_deferred);
+  self->words_deferred = NULL;
+
+  return found;
+}
+
 size_t hog_vm_opt_len(enum hog_ops op) {
   switch (op) {
   case HOG_OP_T8:
@@ -105,8 +170,6 @@ size_t hog_vm_opt_len(enum hog_ops op) {
 
   return 0;
 }
-
-bool hog_vm_is_in_bounds(size_t max_len, size_t i) { return i <= max_len; }
 
 int8_t hog_vm_pop1(struct hog_vm *self) {
   size_t next_sp = 0;
@@ -599,6 +662,10 @@ int8_t hog_vm_tick(struct hog_vm *self) {
 }
 
 size_t hog_vm_tick_all(struct hog_vm *self) {
+  if (hog_vm_has_deferred(self)) {
+    return 0;
+  }
+
   size_t ticks = 0;
   while (!self->hlt && !hog_err()) {
     hog_vm_tick(self);
@@ -645,6 +712,10 @@ void hog_vm_free(struct hog_vm *self) {
   }
 
   fclose(self->parser_tmp);
+
+  if (self->words_deferred) {
+    free(self->words_deferred);
+  }
 
   free(self->mem);
   free(self->ra_stack);

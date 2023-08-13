@@ -190,6 +190,13 @@ struct hog_vm hog_vm_init(size_t mem_size, FILE *stdin, FILE *stdout,
 void hog_vm_def(struct hog_vm *self, size_t addr, const char *word);
 void hog_vm_undef(struct hog_vm *self, size_t addr, const char *word);
 
+// deferr a word lookup until to a later point
+void hog_vm_word_deferr(struct hog_vm *self, const char *word, size_t at_addr);
+// attempts lookup of all deferred words
+void hog_vm_word_try_deferred_word_lookup(struct hog_vm *self);
+// checks for and cleans up deferred words
+bool hog_vm_has_deferred(struct hog_vm *self);
+
 struct hog_word_map *hog_vm_lookup(struct hog_vm *self, const char *word);
 
 size_t hog_vm_opt_len(enum hog_ops op);

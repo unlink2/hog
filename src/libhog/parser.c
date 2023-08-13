@@ -168,6 +168,8 @@ void hog_parse_def_word(struct hog_vm *vm, FILE *tmp) {
     return;
   }
   hog_vm_def(vm, vm->sp, buf);
+
+  hog_vm_word_try_deferred_word_lookup(vm);
 }
 
 // parse a word and undef its address
@@ -182,7 +184,7 @@ void hog_parse_undef_word(struct hog_vm *vm, FILE *tmp) {
   hog_vm_undef(vm, vm->sp, buf);
 }
 
-size_t hog_parse_word(struct hog_vm *vm, FILE *tmp) {
+size_t hog_parse_word(struct hog_vm *vm, int64_t at, FILE *tmp) {
   const size_t buf_len = 64;
   char buf[buf_len];
   hog_tok_next(vm->stdin, buf, buf_len, tmp);
@@ -194,7 +196,8 @@ size_t hog_parse_word(struct hog_vm *vm, FILE *tmp) {
   struct hog_word_map *map = hog_vm_lookup(vm, buf);
 
   if (!map) {
-    hog_err_fset(HOG_ERR_PARSE_WORD_NOT_FOUND, "Word not found: %s\n", buf);
+    // hog_err_fset(HOG_ERR_PARSE_WORD_NOT_FOUND, "Word not found: %s\n", buf);
+    hog_vm_word_deferr(vm, buf, at);
     return 0;
   }
 
@@ -311,7 +314,7 @@ int hog_parse(struct hog_vm *vm, FILE *tmp) {
     int64_t num = 0;
 
     if (vm->opt_parser == HOG_OP_TWORD) {
-      num = (int64_t)hog_parse_word(vm, tmp);
+      num = (int64_t)hog_parse_word(vm, (int64_t)vm->sp + 1, tmp);
     } else {
       num = hog_parse_number(vm, len, tmp);
     }

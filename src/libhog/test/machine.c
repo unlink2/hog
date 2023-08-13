@@ -164,4 +164,12 @@ void test_machine(void **state) {
     assert_vm("Test String");
     teardown();
   }
+  {
+    // deferred lookup
+    setup(":main O\"Start\" wplater c O\"Test String\" e :later O\"Jump "
+          "here?\" r",
+          "", "main");
+    assert_vm("StartJump here?Test String");
+    teardown();
+  }
 }
