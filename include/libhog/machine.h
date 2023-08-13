@@ -149,8 +149,15 @@ struct hog_vm {
   size_t ra_ptr;
   size_t ra_len;
 
+  // word list
   struct hog_word_map *words;
   size_t words_len;
+
+  // when a word was not resolved it is marked as deferred
+  // a re-lookup is attempted whenever a new word is defined
+  // the address is the location of the deferred word's missing address
+  struct hog_word_map *words_deferred;
+  size_t words_deferred_len;
 
   enum hog_ops opt;
   enum hog_ops fmt;
