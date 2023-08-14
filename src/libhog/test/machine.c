@@ -93,13 +93,13 @@ void test_machine(void **state) {
   }
   {
     // jump if 1
-    setup(":case1 b%d.e :main p12 wpcase1 bp1 J e", "", "main");
+    setup(":case1 b%d.e :main p12 bp1 wpcase1 bJ e", "", "main");
     assert_vm("12");
     teardown();
   }
   {
     // jump if not
-    setup(":case1 b%d.e :main p12 wpcase1 bp0 J bp10 . e", "", "main");
+    setup(":case1 b%d.e :main p12 bp0 wpcase1 bJ bp10 . e", "", "main");
     assert_vm("10");
     teardown();
   }

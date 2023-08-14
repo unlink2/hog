@@ -119,8 +119,8 @@ void hog_vm_word_try_deferred_word_lookup(struct hog_vm *self) {
                    "Deferred address %lx is out of bounds!\n", deferred->addr);
       return;
     }
-    int64_t *at = (void *)&self->mem[deferred->addr];
-    *at = (int64_t)word->addr;
+    size_t *at = (void *)&self->mem[deferred->addr];
+    *at = (size_t)word->addr;
   }
 }
 
@@ -519,14 +519,14 @@ int8_t hog_vm_tick(struct hog_vm *self) {
     hog_vm_dup(self);
     break;
   case HOG_OP_JMP_IF: {
+    size_t target = 0;
+    hog_vm_popn(self, &target, sizeof(target));
     int64_t val = hog_vm_popt(self);
     if (!val) {
-      // stil pop address even if branch is not taken
-      size_t target = 0;
-      hog_vm_popn(self, &target, sizeof(target));
       break;
     }
-  }
+    self->ip = target;
+  } break;
   case HOG_OP_POP_IP:
   case HOG_OP_JMP: {
     size_t target = 0;
