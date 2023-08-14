@@ -1,0 +1,14 @@
+:main 
+  # push starting value 
+  ip 0
+:loop
+  # Dup and output 
+  D %d . O"\n"
+  # inc by 1
+  ip 1 +
+  # Dup and compare 
+  D ip 100000 <
+  # push target word and integer compare
+  # conditional jump
+  wp loop iJ
+  e
